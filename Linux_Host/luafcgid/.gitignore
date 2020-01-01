@@ -1,0 +1,5 @@
+*.o
+obj/*
+src/luafcgid
+src/*.o
+

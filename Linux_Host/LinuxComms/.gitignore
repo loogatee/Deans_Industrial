@@ -1,0 +1,12 @@
+*.o
+serial_recv
+packet_recv
+.*.swp
+cdc3
+healthcheck
+*.depend
+*.layout
+*.log
+*.gch
+AD_configonly
+gpioonly

@@ -1,0 +1,92 @@
+
+
+
+ Command 0x0001:   Dloop
+------------------------------
+
+    Summary:
+              'dloop' is short for 'Data Loop'.  PacketCentral knows
+               how to do a dloop, this is merely the trigger for it.
+               A dloop is:
+                  - sending random data to the device
+                  - the device receives the data, and sends back an exact copy 
+                  - comparison is made between original data and received data
+
+
+    Request:
+
+      Byte 0:     Cmd[0] = 0x01
+      Byte 1:     Cmd[1] = 0x00
+      Byte 2:     size of a dloop packet.  Allowed values are 0x01..0xFE
+      Byte 3:     number of dloops  0x01..0xFF
+
+
+    Response:
+
+       A string which shows the success or failure of the dloop.
+       There are 3 outcomes of the dloop:
+            1.  Success
+            2.  Timeout        (Sent some data, got nothing back)
+            3.  data mismatch
+
+       The possible responses are formatted in the following way:
+
+       if( result == DLOOP_GOOD)
+          sprintf((char *)dbuf,"GOOD,%d,%d",num_loops,data_size);
+       else if( result == DLOOP_TIMEOUT)
+          sprintf((char *)dbuf,"ERROR,timeout,numloops = %d",num_loops);
+       else
+          sprintf((char *)dbuf,"ERROR,dloop data mismatch,numloops = %d",num_loops);
+
+
+
+
+
+ Command 0x0002:   SetLeds
+------------------------------
+
+    Summary:
+              There's 4 Leds on the Board: LED0, LED1, LED2, LED3
+              This command allows the Leds to be turned On or Off
+
+    Request:
+
+      Byte 0:     Cmd[0] = 0x02
+      Byte 1:     Cmd[1] = 0x00
+      Byte 2:     Led Number.  0 for Led0, 3 for Led3
+      Byte 3:     On/Off.      0 = Off, 1 = On
+
+
+    Response:
+
+         < There is no response >
+
+
+
+
+
+ Command 0x0003:   Hard Reset the Device
+----------------------------------------
+
+    Summary:
+              This command causes the board to self-reset, in this case
+              the PIC will end up pulling reset.
+              Length of data should be 3 bytes, even though the
+              last byte is effectivelfy a NOP.
+
+    Request:
+
+      Byte 0:     Cmd[0] = 0x03
+      Byte 1:     Cmd[1] = 0x00
+      Byte 2:     don't care
+
+
+    Response:
+
+         < There is no response >
+
+
+
+
+
+

@@ -1,0 +1,89 @@
+#!/bin/sh
+#
+# start/stop cdc3 Daemon
+#set -x
+
+### BEGIN INIT INFO
+# Provides:          cdc3
+# Required-Start:    $remote_fs $network $syslog
+# Required-Stop:     $remote_fs $network $syslog
+# Should-Start:      $named
+# Should-Stop:       $named
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start cdc3 Daemon xx
+# Description:       Start cdc3 Daemon
+### END INIT INFO
+
+#BINTEMPER="/opt/Temper/temper"
+BINCDC3="/usr/local/bin/cdc3"
+PIDFILE="/var/run/cdc3.pid"
+
+for arg in $*; do
+	case "$arg" in
+		-*=*) optarg=`echo "$arg" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+		   *) optarg= ;;
+	esac
+
+	if  ! test -f $PIDFILE ; then
+		STATUS="no"
+	else
+		PIDCDC3=`cat $PIDFILE`
+		if ! kill -0 $PIDCDC3 2>/dev/null; then
+			STATUS="no"
+		else
+			STATUS="yes"
+		fi
+	fi
+
+	case "$arg" in
+		start)
+			if [ "$STATUS" = "yes"  ] ; then
+				echo "cdc3 is running... (PID=$PIDCDC3)"
+				exit 1
+			fi
+			$BINCDC3 >>/var/tmp/cdc3Err.log 2>&1
+			echo "Running cdc3 (1) -> OK"
+			exit 0
+		;;
+		stop)
+			if  [ "$STATUS" = "no" ]; then
+				echo "cdc3 is not running."
+				exit 0
+			fi
+			kill -9 $PIDCDC3
+			rm -rf $PIDFILE > /dev/null
+			echo "cdc3 stopped ($PIDCDC3)"
+			exit 0
+			;;
+		force-reload|restart)
+			if  [ "$STATUS" = "yes" ]; then
+				if ! kill $PIDCDC3  > /dev/null ; then
+					killall -9 cdc3
+				else
+					echo -n "Stopping cdc3 "
+				fi
+			else
+				echo -n "cdc3 is not running... "
+			fi
+			$BINCDC3 >>/var/tmp/cdc3Err.log 2>&1
+			echo "Restarting -> OK"
+			exit 0
+			;;
+		status)
+                        if  [ "$STATUS" = "yes" ]; then
+				echo "cdc3 is running... (PID=$PIDCDC3)"
+			else
+                                echo "cdc3 is not running... "
+                        fi
+			exit 0
+			;;
+		*)
+			echo "Usage : cdc3 [start|stop|restart|status|help]"
+			exit 1
+		;;
+	esac
+done
+echo "Usage : cdc3 [start|stop|restart|status|help]"
+
+exit 0
