@@ -1,7 +1,0 @@
-i2c_master.c:100:23:I2C_1_master_Init	16	static
-i2c_master.c:125:23:I2C_1_master_Process	24	static
-i2c_master.c:311:11:write_complete	24	static
-i2c_master.c:343:13:set_next_channel	16	static
-i2c_master.c:365:13:cleanup	24	static
-i2c_master.c:397:13:dbgprint	40	static
-i2c_master.c:418:13:dbgset_match_channel	16	static

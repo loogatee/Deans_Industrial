@@ -1,5 +1,10 @@
 
+Getting .gitignore setup, deleting files that shouldn't be there
+-------------------------------------------------
+    1/1/2020  8:40am
+    eom
 
 Adding in Linux Host stuff
 -------------------------------------------------
     1/1/2020
+    eom

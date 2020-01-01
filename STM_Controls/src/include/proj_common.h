@@ -18,10 +18,10 @@
  */
 
 
-#define VERSION_STR     "The Real CDC3  V1_"
+#define VERSION_STR     "Deans Industrial  V1_"
 #define VERSION_MAJOR   1
 #define VERSION_MINOR   1
-#define VERSION_DATE    "12/31/2019 12:21\r\n"
+#define VERSION_DATE    "1/1/2020 12:21\r\n"
 
 
 

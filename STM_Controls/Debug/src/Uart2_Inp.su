@@ -1,3 +1,0 @@
-Uart2_Inp.c:36:6:U2Inp_Init	4	static
-Uart2_Inp.c:43:6:U2Inp_Process	16	static
-Uart2_Inp.c:101:6:U2Inp_SignalCmdDone	4	static
