@@ -1,0 +1,9 @@
+utils.c:19:6:BtoH	24	static
+utils.c:32:6:BtoHnz	24	static
+utils.c:46:6:ItoH	24	static
+utils.c:60:6:ItoH16	24	static
+utils.c:75:10:HtoI	24	static
+utils.c:98:5:AtoI	24	static
+utils.c:123:10:HtoU16	24	static
+utils.c:151:6:Hammer	16	static
+utils.c:157:6:swap	24	static

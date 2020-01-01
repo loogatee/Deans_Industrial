@@ -1,0 +1,10 @@
+main.c:37:22:main	16	static
+main.c:63:23:vApplicationIdleHook	8	static
+main.c:80:23:vApplicationTickHook	8	static
+main.c:89:13:init_gpios	24	static
+main.c:146:13:init_usarts	40	static
+main.c:174:6:init_gpioI2C	32	static
+main.c:208:13:init_hw	24	static
+main.c:228:13:StartDefaultTask	16	static
+main.c:238:13:TestThread	16	static
+main.c:249:23:jSem_give	8	static
