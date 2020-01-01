@@ -1,4 +1,4 @@
 STM_Controls/Release/
 STM_Controls/Debug/
-Linux_Host/*.o
-Linux_Host/cdc3
+Linux_Host/LinuxComms/*.o
+Linux_Host/LinuxComms/cdc3
