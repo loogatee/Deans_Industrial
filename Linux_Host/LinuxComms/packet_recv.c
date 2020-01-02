@@ -291,7 +291,7 @@ void *PacketHandler( void *dummy )
         if( !(PollItems[0].revents & ZMQ_POLLIN) ) { continue; }
 
         len = zmq_recv( G->RcvFromSerial, G->dbuf, BUFLEN, 0 );
-        cmd = G->dbuf[1];
+        cmd = G->dbuf[0];
 
         ++G->TotPacks;
         G->TotBytes += len;

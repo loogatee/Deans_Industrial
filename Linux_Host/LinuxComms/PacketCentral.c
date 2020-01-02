@@ -98,14 +98,16 @@ static int  Wait_On_Response(u8 *pbuf, int llen)
 {
     zmq_pollitem_t  Pitems[1];
     int rc;
+    int retv;
 
     Pitems[0].socket  = Globals.CdcResponse;
     Pitems[0].fd      = 0;
     Pitems[0].events  = ZMQ_POLLIN;
     Pitems[0].revents = 0;
 
-    if( zmq_poll(Pitems,1,3000) <= 0 )
+    if( (retv=zmq_poll(Pitems,1,3000)) <= 0 )
     {
+        printf("zmq_poll timeout: %d\n",retv); fflush(stdout);
         ++Globals.RespTimeouts;
         return -1;
     }
@@ -123,6 +125,18 @@ static void seed_the_random( void )
 
     gettimeofday(&tvt,&tzt);
     srand((uint)(tvt.tv_usec+13));        // Feeling Lucky??
+}
+
+u8 Get_datasize( void )
+{
+    u8 val;
+
+    do
+    {
+        val = (u8)(rand() & 0xff);
+    } while( val < 5 || val > 244 );
+
+    return val;     
 }
 
 
@@ -149,8 +163,14 @@ static int PC_dloop( u8 *inbuf )
 
     for( j=0; j < num_loops; ++j )
     {
+        data_size = Get_datasize();
         dptr[0] = data_size;                      // Len Byte
         dptr[1] = CDCAPI_DLOOP_FHOST;             // Cmd Byte
+
+        if( data_size == 0 )
+        {
+
+        }
 
         for( i=0; i < data_size; ++i)             //   Data Bytes:  D[0] .. D[data_size-1]
             tptr[i] = (u8)(rand() & 0xff);
@@ -161,6 +181,7 @@ static int PC_dloop( u8 *inbuf )
 
         if( (rc=Wait_On_Response(dbuf,BUFLEN)) < 0 )                      // rc bytes in dbuf on success
         {
+            printf(" DLOOP_TIMEOUT: data_size = %d\n", data_size);  fflush(stdout);
             result = DLOOP_TIMEOUT;
             break;
         }

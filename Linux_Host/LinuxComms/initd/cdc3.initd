@@ -17,7 +17,7 @@
 
 #BINTEMPER="/opt/Temper/temper"
 BINCDC3="/usr/local/bin/cdc3"
-PIDFILE="/var/run/cdc3.pid"
+PIDFILE="/var/run/di.pid"
 
 for arg in $*; do
 	case "$arg" in

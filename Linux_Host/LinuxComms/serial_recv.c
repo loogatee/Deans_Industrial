@@ -245,28 +245,36 @@ static Bool Verify_Seqn_Tag(u8 tag)
 //
 //    Examines packet to determine where to send
 //
-static void ProcessPacket(void)
+static void ProcessPacket( u8 thetag )
 {
-    int  rc;
-    uint len = Globals.dbuf[0] + 2;
+    u8      tmpb;
+    int     rc;
+    uint    len;
+    Globes *G = &Globals;
+    u8 *dptr;
 
-    u8  *dptr = Globals.dbuf;
-    printf( "ProcessPacket.   %d   Rx:  cmd=0x%02x, len=%d\n", Globals.TotZSendGood, dptr[1], dptr[0] );
-    fflush(stdout);
+    len = G->dbuf[0] + 2;
 
-    switch( Globals.dbuf[1] )
+
+    tmpb       = G->dbuf[0];
+    G->dbuf[0] = G->dbuf[1];
+    G->dbuf[1] = tmpb;
+
+    dptr = Globals.dbuf;
+    if( dptr[0] != 25 )
+        { printf( "Rx:  len=%d, cmd=%d\n", dptr[1], dptr[0]); fflush(stdout); }
+
+    switch( G->dbuf[0] )
     {
-        case  CDCAPI_ADGETALLAVGS:
-        case  CDCAPI_ADGETVALS:
-        case  CDCAPI_DLOOP_FHOST: rc = zmq_send( Globals.CdcResponse, Globals.dbuf, len, 0 ); break;
+        case  CDCAPI_DLOOP_FHOST: rc = zmq_send( G->CdcResponse, G->dbuf, len, 0 ); break;
 
-        default:                  rc = zmq_send( Globals.PaktChannel, Globals.dbuf, len, 0 ); break;
+        default:                  rc = zmq_send( G->PaktChannel, G->dbuf, len, 0 ); break;
     }
 
     if( rc < 0 )
-        ++Globals.TotZSendErrs;
+        ++G->TotZSendErrs;
     else
-        ++Globals.TotZSendGood;
+        ++G->TotZSendGood;
 }
 
 
@@ -286,8 +294,8 @@ static void Init_serial_recv_ZMQs( void )
     rc             = zmq_bind   ( G->BackChannel, ZMQPORT_BACKCHANNEL_1 );    assert(rc == 0);
 
     G->context3    = zmq_ctx_new();
-    G->CdcResponse = zmq_socket ( G->context3,    ZMQ_PUSH              );
-    rc             = zmq_connect( G->CdcResponse, ZMQPORT_CDCRESPONSE   );    assert(rc == 0);
+    G->CdcResponse = zmq_socket ( G->context3,    ZMQ_PUB               );
+    rc             = zmq_bind   ( G->CdcResponse, ZMQPORT_CDCRESPONSE   );    assert(rc == 0);
 
     strcpy(tmpbuf, ZMQPORT_BACKCHANNEL_1);
     chmod(&tmpbuf[6], 0777);
@@ -323,7 +331,7 @@ void *Serial_Recv( void *Iptr )
         if( Get_Input_Packet(&tag) == true )
         {
             if( Verify_Seqn_Tag(tag) == false ) { /* printf("    ----seqn_tag = BAD\n") */    ; }
-            ProcessPacket();
+            ProcessPacket(tag);
             G->Tag_Seqn = tag;
         }
         else

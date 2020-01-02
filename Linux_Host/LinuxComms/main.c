@@ -42,7 +42,7 @@ int main(void)
     pthread_t  SRecv_threadID;
     pthread_t  SSend_threadID;
     pthread_t  PRecv_threadID;
-    pthread_t  PCent_threadID;
+    //pthread_t  PCent_threadID;
     int        rc1_dup;
     int        rc2_dup;
 
@@ -91,11 +91,11 @@ int main(void)
         return -1;
     }
 
-    if( pthread_create(&PCent_threadID, 0, PacketCentral, 0) != 0 )
+/*  if( pthread_create(&PCent_threadID, 0, PacketCentral, 0) != 0 )
     {
         printf("pthread_create Failure on PacketCentral\n");
         return -1;
-    }
+    } */
 
     the_pid = getpid();
     sprintf((char *)lbuf,"%d",the_pid);

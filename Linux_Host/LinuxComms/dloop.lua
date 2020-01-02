@@ -17,7 +17,7 @@
 local zmq = require "lzmq"
 
 --DLOOP_CMD = "\001\000\164\010"     -- this will do the dloop     0x0100        CDCCMD_DLOOP = 0x0001 
-DLOOP_CMD = "\001\000\009\010"     -- this will do the dloop     0x0100        CDCCMD_DLOOP = 0x0001 
+DLOOP_CMD = "\001\000\099\005"     -- this will do the dloop     0x0100        CDCCMD_DLOOP = 0x0001 
 
 
 local version = zmq.version()
@@ -34,7 +34,7 @@ for i=1,10000 do
 
     SS = skt:recv()
     if SS ~= nil then
-        print("dloop result: " .. SS .. "     " .. i )
+        print(SS)
     else
         print("recv returned nil")
     end

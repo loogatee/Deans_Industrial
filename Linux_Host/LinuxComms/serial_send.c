@@ -75,7 +75,7 @@ void *Serial_Send( void *Iptr )
     void            *context1,*PktReceiver,*context2;
     int              rc,Tlen;
     uint             i,csum;
-    u8              cbuf[6],cmd,plen,Tag_Seqn;
+    u8              cbuf[6],plen,Tag_Seqn;
     Globes          *G;
     zmq_pollitem_t   PollItems[2];
     int              Sfd;
@@ -123,25 +123,26 @@ void *Serial_Send( void *Iptr )
         }
         ++G->TotPacks;
 
-        cmd  = dbuf[1];
+        //cmd  = dbuf[1];
         plen = dbuf[0];
 
         for( csum=0,i=0; i < (plen+2); ++i)            // +2 will include cmd and plen bytes
             csum = csum + dbuf[i];
         csum = csum & 0xff;                            // checksum generation
 
-printf( "%d   Tx:  cmd=0x%02x, len=%d, csum=0x%02x\n", Tlen, cmd, plen, csum );
 
         cbuf[0] = 0xAB;              //  Fixed0
         cbuf[1] = 0x5F;              //  Fixed1
         cbuf[2] = Tag_Seqn++;        //  seqn
 
+        printf( "Tx:  len=%d, cmd=%d\n", plen, (unsigned int)dbuf[1] );       fflush(stdout);
 
         dbuf[plen+2] = csum;         //  csum is the byte after the data
         dbuf[plen+3] = 0xEE;         //  marker for now
 
 
         write(Sfd,cbuf,3);
+        usleep( 200 );
         write(Sfd,dbuf,plen+3);
 
 //printf( "len    %02x\n",dbuf[0]);

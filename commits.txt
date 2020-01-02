@@ -1,4 +1,39 @@
 
+
+BIGGIE LinuxHost: removing PacketCentral, going to pub/sub in serial_recv.c
+-------------------------------------------------
+    1/1/2020  9pm
+
+    Bangin out the new years in style.
+    Thought about shit.
+    My design, as embodied in PacketCentral was crap.
+    Pub/Sub with serial_recv seems to be the ticket,
+         but for packets that originate on host & require a response
+    
+
+      - Dloop.c is new.  Derived from PacketCentral.   Does the sub.
+        Good example for how to achieve pub/sub with SUBSCRIBE filter
+
+      - Makefile: PacketCentral is no longer needed with the new model
+
+      - Both PacketCentral.c and dloop.lua are effectively deprecated.
+
+      ***Need a dloop.lua equivalent to dloop.c
+
+      - main.c: removed startup for packetcentral
+
+     ***achieved pub sub by switching cmd byte and length byte.
+        Then can filter on the 1st byte.
+        Means I can have 256 different type of packets.
+        Should be plenty.
+ 
+
+
+More .gitignore
+-------------------------------------------------
+    1/1/2020  8:45am
+    eom
+
 Getting .gitignore setup, deleting files that shouldn't be there
 -------------------------------------------------
     1/1/2020  8:40am
