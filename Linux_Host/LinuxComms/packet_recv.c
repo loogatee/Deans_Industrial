@@ -41,11 +41,13 @@ typedef struct
     lua_State  *LS1;
     uint        TotBytes,TotPacks;
     Bool        ControlsUP;
-} Globes;
+} GLOBALS_PAKTRECV_t;
+
+static GLOBALS_PAKTRECV_t   Globals;
 
 
 
-static Globes    Globals;
+
 
 
 static void getLSstackval(char *rptr)
@@ -56,36 +58,69 @@ static void getLSstackval(char *rptr)
     strcpy(rptr,rp);
 }
 
+static int getstackval(void)
+{
+    lua_next(Globals.LS1, -2);
+    int rv = lua_tointeger(Globals.LS1,-1);
+    lua_pop(Globals.LS1, 1);
+    return rv;
+}
+
+
+
+
+//
+//    Also working as a Lua server.
+//    packet_recv is the only thread that has a lua interpreter 
+//
 static void do_backchannel_response( void )
 {
-    uint    i;
-    char    S1buf[100],S2buf[200];
-    char    LS[16][10];
-    Globes *G = &Globals;
+    PARMS_t  *XX;
+    uint      i;
+    char      S1buf[100],S2buf[200];
+    char      LS[16][10];
 
-    S1buf[0] = S1buf[1] = 0;
+    GLOBALS_PAKTRECV_t *G = &Globals;
 
     zmq_recv( G->BackChan3, S1buf, 40, 0 );                         // polled already, so data avail now
+    S1buf[40] = 0;                                                  // Guarantees string termination!!
 
-    if( S1buf[0] == 0x6d  && S1buf[1] == 0x01 )                     // 6d and 01 are the magic sauce
+    if( !strncmp(S1buf,"healthcheckdata",15) )                      // local stats.  also notes alive.
     {
         sprintf(S1buf,"ok,%d,%d",G->TotBytes,G->TotPacks);
         zmq_send( G->BackChan3, S1buf, strlen(S1buf), 0 );
     }
-    else if( !strncmp(S1buf,"ADGetNames",10) )
+    else if( !strncmp(S1buf,"ADGetNames",10) )                      // Names of all 16 A/D channels
     {
         lua_getglobal(G->LS1,"lua_Get_AD_Names");                   // This is the name of the Lua function
         lua_pcall(G->LS1,0,1,0);                                    // executes the Lua function, 1 return arg on stack
         lua_pushnil(G->LS1);                                        // precursor needed for reading stack values
 
-        for(i=0; i < 16; ++i)
+        for(i=0; i < 16; ++i)                                       // iterate through them all
         {
-            getLSstackval(LS[i]);                                   // Storage for string passed in as parameter
+            getLSstackval(LS[i]);                                   // get the name: storage pointer passed in as parm
         }
 
         sprintf(S1buf,  "[\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",", LS[0],LS[1],LS[2],LS[3], LS[4], LS[5], LS[6], LS[7]);
         sprintf(S2buf, "%s\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]", S1buf,LS[8],LS[9],LS[10],LS[11],LS[12],LS[13],LS[14],LS[15]);
         zmq_send( G->BackChan3, S2buf, strlen(S2buf), 0 );
+    }
+    else if( !strncmp(S1buf,"InParms",7) )                          // 0..7      Field_0
+    {
+        memcpy((void *)&XX,&S1buf[8],4);                            // 8..11     Field_1
+
+        lua_getglobal(G->LS1,"lua_Get_parms");                      // This is the name of the Lua function
+        sprintf(S2buf,"Z=%s",&S1buf[12]);                           // 12..N     Field_2       Note the 'Z=' addition (check lutils.lua)
+
+        lua_pushstring(G->LS1, S2buf);
+        lua_pcall(G->LS1,1,1,0);                                    // executes the Lua function, 1 return arg on stack
+
+        lua_pushnil(G->LS1);                                        // precursor needed for reading stack values
+        getLSstackval((char *)XX->cmdName);                         // 1st value is the Command name in string format
+        XX->parm1 = getstackval();                                  // 2nd value is an integer
+        XX->parm2 = getstackval();                                  // 3rd value is an integer
+                                                                    // *** Note for now, that parameters are fixed
+        zmq_send( G->BackChan3, S2buf, 1, 0 );
     }
     else
     {
@@ -120,13 +155,6 @@ static void send_IMUP( void )
 //
 //
 //
-static int getstackval(void)
-{
-    lua_next(Globals.LS1, -2);
-    int rv = lua_tointeger(Globals.LS1,-1);
-    lua_pop(Globals.LS1, 1);
-    return rv;
-}
 
 
 //    CAll a Lua function to do all the 'heavy' lifting.   We need three values
@@ -158,7 +186,8 @@ static void PH_AnConfig( void )
     u8       dbuf[BUFLEN];
     int      I1,I2,i;
     u8      *dptr = dbuf;
-    Globes  *G = &Globals;
+
+    GLOBALS_PAKTRECV_t *G = &Globals;
 
     printf("PH_AnConfig\n\r");  fflush(stdout);
 
@@ -223,7 +252,8 @@ static void Init_PacketHandler_ZMQs( void )
 {
     char    dbuf[40];
     int     rc;
-    Globes *G = &Globals;
+//  Globes             *G = &Globals;
+    GLOBALS_PAKTRECV_t *G = &Globals;
 
     G->context1      = zmq_ctx_new();
     G->RcvFromSerial = zmq_socket ( G->context1,      ZMQ_PULL              );
@@ -249,9 +279,9 @@ void *PacketHandler( void *dummy )
     u8              cmd;
     int             len;
     zmq_pollitem_t  PollItems[2];
-    char dbgbuf[100];
 
-    Globes *G     = &Globals;
+    GLOBALS_PAKTRECV_t *G = &Globals;
+
     G->TotBytes   = 0;
     G->TotPacks   = 0;
     G->ControlsUP = False;
@@ -306,12 +336,6 @@ void *PacketHandler( void *dummy )
                       PH_AnConfig();
                       break;
 
-          case CDCAPI_BLASTAWAY:
-
-                      memcpy((void *)dbgbuf, (void *)&G->dbuf[2], len-2);
-                      dbgbuf[len-2]=0;
-                      printf("%s",dbgbuf); fflush(stdout);
-                      break;
 
           case CDCAPI_IMUP:
 
@@ -328,8 +352,13 @@ void *PacketHandler( void *dummy )
                       fflush(stdout);
                       break;
 
+/*        case CDCAPI_JRTEST:     PH_JRtest();     break;
+          case CDCAPI_BLASTAWAY:
 
-//        case CDCAPI_JRTEST:     PH_JRtest();     break;
+                      memcpy((void *)dbgbuf, (void *)&G->dbuf[2], len-2);
+                      dbgbuf[len-2]=0;
+                      printf("%s",dbgbuf); fflush(stdout);
+                      break;   */
 
           default:    printf( "--Default Packet: zmqlen=%d, cmd=0x%02x, len=%d\n", len, cmd, len );
                       fflush(stdout);

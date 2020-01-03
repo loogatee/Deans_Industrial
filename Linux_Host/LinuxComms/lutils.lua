@@ -98,7 +98,43 @@ function lua_Get_AD_Names()
     return T
 end
 
+--
+--    Z={ 'dloop', 2, 3 }
+--
+function lua_Get_parms( Sval )
+    local X = { "none", 0, 0 }
+    local T = {}
 
+    if #Sval == 0 then return X end
+
+    local F = loadstring( Sval )
+
+    if type(F) ~= 'function' then return X end
+
+    F()
+
+    if Z[1] ~= nil and type(Z[1]) == 'string' then
+        T[1] = Z[1]
+    else
+        T[1] = 'none'
+    end
+
+    if Z[2] ~= nil and type(Z[2]) == 'number' then
+        T[2] = Z[2]
+    else
+        T[2] = -9999
+    end
+
+    if Z[3] ~= nil and type(Z[3]) == 'number' then
+        T[3] = Z[3]
+    else
+        T[3] = -9999
+    end
+
+    Z=nil
+
+    return T
+end
 
 
 

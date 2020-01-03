@@ -6,7 +6,7 @@ GCC      = gcc
 GCCARM   = arm-linux-gnueabihf-gcc
 
 progs    = cdc3 healthcheck
-OBJS     = main.o serial_recv.o serial_send.o packet_recv.o
+OBJS     = main.o serial_recv.o serial_send.o packet_recv.o PacketCentral.o
 
 all : $(progs)
 
@@ -40,7 +40,7 @@ serial_send.o:   serial_send.c   include/proj_common.h
 packet_recv.o:   packet_recv.c   include/proj_common.h include/cdc_cmds.h include/utils.h
 main.o:          main.c          include/proj_common.h
 utils.o:         utils.c         include/proj_common.h include/utils.h
-#PacketCentral.o: PacketCentral.c include/proj_common.h include/cdc_cmds.h
+PacketCentral.o: PacketCentral.c include/proj_common.h include/cdc_cmds.h
 
 
 

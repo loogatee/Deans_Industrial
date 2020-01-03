@@ -32,22 +32,26 @@
 
 
 
+
+
 typedef struct
 {
-    u8     dloop_original[256];
-    void  *context1,*context2,*context3,*context4;
-    void  *CmdChannel;
-    void  *SerialChannel;
-    void  *BackChannel;
-    void  *CdcResponse;
-    uint   RespTimeouts;
+    u8         dloop_original[256];
+    void      *context1,*context2,*context3,*context4,*context5;
+    void      *CmdChannel;
+    void      *SerialChannel;
+    void      *BackChannel;
+    void      *BackChannel_PR;   // backchannel for packet_recv (also the Lua server)
+    void      *CdcResponse;
+    uint       RespTimeouts;
+    PARMS_t    localParms;
 } Globes;
 
 
 
 static Globes  Globals;
 
-
+PARMS_t  dbgParms;
 
 
 
@@ -140,37 +144,43 @@ u8 Get_datasize( void )
 }
 
 
-static int PC_dloop( u8 *inbuf )
+static int PC_dloop( int  data_size, int num_loops )
 {
     u8    dbuf[BUFLEN];
-    u8   *dptr,*tptr;
-    uint  num_loops,i,j,data_size,result;
+    u8   *dptr,*tptr,tmpb;
+    uint  i,j,result;
     int   rc;
+    int   was_zero;
 
-    //printf("PC_dloop, inbuf[2] = %d,   inbuf[3] = %d\n", inbuf[2], inbuf[3] );
+    if( num_loops == -9999 ) { num_loops = 1;  }
+    if( data_size == -9999 ) { data_size = 49; }
+
+
+    printf(" data_size = %d,  num_loops = %d\n", data_size, num_loops);  fflush(stdout);
+
+
+
 
     result    = DLOOP_GOOD;
     dptr      = Globals.dloop_original;
     tptr      = &dptr[2];
-    num_loops = inbuf[3];
-    data_size = inbuf[2];
+    was_zero  = 0;
 
     if( num_loops == 0    ) ++num_loops;
-    if( data_size == 0    ) ++data_size;
-    if( data_size >= 253  ) data_size=253;
+    //if( data_size == 0    ) ++data_size;
+    if( data_size >= 246  ) data_size=246;
 
     seed_the_random();
 
     for( j=0; j < num_loops; ++j )
     {
-        data_size = Get_datasize();
+        if( data_size == 0 || was_zero == 1 )
+        {
+            was_zero = 1;
+            data_size = Get_datasize();
+        }
         dptr[0] = data_size;                      // Len Byte
         dptr[1] = CDCAPI_DLOOP_FHOST;             // Cmd Byte
-
-        if( data_size == 0 )
-        {
-
-        }
 
         for( i=0; i < data_size; ++i)             //   Data Bytes:  D[0] .. D[data_size-1]
             tptr[i] = (u8)(rand() & 0xff);
@@ -188,6 +198,10 @@ static int PC_dloop( u8 *inbuf )
 
         //memdump(dptr);
         //memdump(dbuf);
+
+        tmpb = dbuf[0];
+        dbuf[0] = dbuf[1];
+        dbuf[1] = tmpb;
 
         if(memcmp(dptr,dbuf,rc))                                      // dptr is the original data, dbuf just got read in
         {
@@ -207,6 +221,7 @@ static int PC_dloop( u8 *inbuf )
     return 0;
 }
 
+/*
 //
 //
 //    b2  LED1
@@ -225,9 +240,9 @@ static void PC_setled( u8 *abuf )
 
     zmq_send( Globals.SerialChannel, dbuf, 4, 0 );         // 4:  cmd byte + len byte + 2 data bytes
     zmq_send( Globals.CmdChannel,    "ok", 2, 0 );         // reply back to CmdChannel with ok msg
-}
+} */
 
-
+/*
 static void PC_resetdev( void )
 {
     u8    dbuf[BUFLEN];
@@ -238,10 +253,10 @@ static void PC_resetdev( void )
 
     zmq_send( Globals.SerialChannel, dbuf, 3, 0 );              // 
     zmq_send( Globals.CmdChannel, "ok", 2 , 0 );                // reply back to CmdChannel with ok msg
-}
+} */
 
 
-
+/*
 //
 //   7 32-bit values are returned.   Len = 28bytes
 //
@@ -279,9 +294,9 @@ static void PC_adgetvals( u8 *abuf )
     }
 
     zmq_send( Globals.CmdChannel,  Sbuf, strlen(Sbuf), 0 );        // reply back to CmdChannel with ok msg
-}
+} */
 
-
+/*
 //
 //   16 32-bit values are returned.   Len = 64bytes
 //
@@ -317,14 +332,37 @@ static void PC_adgetallavgs( void )
     }
 
     zmq_send( Globals.CmdChannel,  S2buf, strlen(S2buf), 0 );        // reply back to CmdChannel with ok msg
+} */
+
+
+
+
+
+//================================================================================
+//================================================================================
+
+static void Get_InputParms( char *Sptr)
+{
+    u32     *dptr;
+    char     dbuf[80];
+    Globes  *G = &Globals;
+
+    memset(dbuf,0,60);
+    //printf("Sptr = %s\n",Sptr);
+
+    strcpy(dbuf,"InParms");
+
+    dptr  = (u32 *)&dbuf[8];
+    *dptr = (u32)&G->localParms;
+
+    strcpy(&dbuf[12],Sptr);
+    dbuf[strlen(Sptr) + 13] = 0;
+
+    zmq_send(G->BackChannel_PR, dbuf, strlen(Sptr) + 13, ZMQ_NOBLOCK);      // 12 + 1
+    zmq_recv(G->BackChannel_PR, dbuf, 10, 0 );
 }
 
 
-
-
-
-//================================================================================
-//================================================================================
 
 
 static void Init_PacketCentral_ZMQs( void )
@@ -348,15 +386,20 @@ static void Init_PacketCentral_ZMQs( void )
 
     // (Read) FROM the Response Channel, results in (Send-Reply) TO the Cmd Channel 
     G->context3      = zmq_ctx_new();
-    G->CdcResponse   = zmq_socket ( G->context3,      ZMQ_PULL              );
-    rc               = zmq_bind   ( G->CdcResponse,   ZMQPORT_CDCRESPONSE   );  assert(rc == 0);
+    G->CdcResponse   = zmq_socket ( G->context3,      ZMQ_SUB               );
+    rc               = zmq_connect( G->CdcResponse,   ZMQPORT_CDCRESPONSE   );  assert(rc == 0);
+    rc = zmq_setsockopt (G->CdcResponse, ZMQ_SUBSCRIBE, 0, 0);
 
     // (Recv-Request) FROM the backchannel, results in (Send-Reply) TO the Back Channel
     G->context4      = zmq_ctx_new();
     G->BackChannel   = zmq_socket ( G->context4,      ZMQ_REP               );
     rc               = zmq_bind   ( G->BackChannel,   ZMQPORT_BACKCHANNEL_2 );  assert(rc == 0);
 
-    
+    // Request-Recv) FROM the backchannel_PR
+    G->context5       = zmq_ctx_new();
+    G->BackChannel_PR = zmq_socket ( G->context5,       ZMQ_REQ                );
+    rc                = zmq_connect( G->BackChannel_PR, ZMQPORT_BACKCHANNEL_PR );  assert(rc == 0);
+
     strcpy(tbuf, ZMQPORT_CDCRESPONSE);     chmod(&tbuf[6], 0777);
     strcpy(tbuf, ZMQPORT_CMDCHANNEL);      chmod(&tbuf[6], 0777);
     strcpy(tbuf, ZMQPORT_BACKCHANNEL_2);   chmod(&tbuf[6], 0777);
@@ -372,17 +415,14 @@ static void Init_PacketCentral_ZMQs( void )
 void *PacketCentral( void *dummy )
 {
     u8               dbuf[BUFLEN];
-    u16             *cmdptr;
     zmq_pollitem_t   PollItems[3];
     Globes          *G = &Globals;
-
-//char dbgbuf;
+    int              rc;
 
     G->RespTimeouts = 0;
-    cmdptr          = (u16 *)dbuf;
 
     Init_PacketCentral_ZMQs();
-    
+
     PollItems[0].socket  = G->CmdChannel;
     PollItems[0].fd      = 0;
     PollItems[0].events  = ZMQ_POLLIN;
@@ -407,23 +447,33 @@ void *PacketCentral( void *dummy )
         if(   PollItems[2].revents & ZMQ_POLLIN  ) { zmq_recv( G->CdcResponse, dbuf, BUFLEN, 0 ); }      // unexpected: read it, dump it
         if( !(PollItems[0].revents & ZMQ_POLLIN) ) { continue; }
 
-        *cmdptr = 0;
-        zmq_recv( G->CmdChannel, dbuf, BUFLEN, 0 );           // data should be immediately available
-        switch(*cmdptr)
-        {
-            case CDCCMD_DLOOP:         PC_dloop(dbuf);         break;
-            case CDCCMD_SETLED:        PC_setled(dbuf);        break;
-            case CDCCMD_RESETDEV:      PC_resetdev();          break;
-            case CDCCMD_ADGETVALS:     PC_adgetvals(dbuf);     break;
-            case CDCCMD_ADGETALLAVGS:  PC_adgetallavgs();      break;
+        rc=zmq_recv( G->CmdChannel, dbuf, BUFLEN, 0 );           // data should be immediately available
+        dbuf[rc] = 0;
 
-            default:
-                     printf("PacketCentral, *cmdptr = %04x\n",*cmdptr);
-                     zmq_send( G->CmdChannel, "cmd not found", 13 , 0 );            // reply back with err msg
-                     break;
+        //
+        //   { 'Dloop', 100, 2 }    { 'Dloop', 100 }
+        //
+        Get_InputParms( (char *)dbuf );
+
+        //printf("cmdName: %s\n", G->localParms.cmdName);
+        //printf("parm1:   %d\n", G->localParms.parm1);
+        //printf("parm2:   %d\n", G->localParms.parm2);
+
+        if( !strcmp((const char *)G->localParms.cmdName,"Dloop") )
+        {
+            PC_dloop(G->localParms.parm1,G->localParms.parm2);
+        }
+        else
+        {
+            printf("PacketCentral, cmd = %s\n", G->localParms.cmdName); fflush(stdout);
+            zmq_send( G->CmdChannel, "cmd not found", 13 , 0 );            // reply back with err msg
         }
 
-        //printf("cmdptr = 0x%x\n",*cmdptr);
+        //case CDCCMD_SETLED:        PC_setled(dbuf);        break;
+
+        //case CDCCMD_RESETDEV:      PC_resetdev();          break;
+        //case CDCCMD_ADGETVALS:     PC_adgetvals(dbuf);     break;
+        //case CDCCMD_ADGETALLAVGS:  PC_adgetallavgs();      break;
     }
 
 }

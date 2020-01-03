@@ -214,7 +214,7 @@ static void Init_Dloop_ZMQs( void )
 //
 int main( void )
 {
-    Globes          *G = &Globals;
+    Globes  *G = &Globals;
 
     G->RespTimeouts = 0;
 

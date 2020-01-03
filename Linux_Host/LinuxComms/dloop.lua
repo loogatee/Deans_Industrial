@@ -16,8 +16,10 @@
 
 local zmq = require "lzmq"
 
+DLOOP_CMD = "{ 'Dloop' }"
+
 --DLOOP_CMD = "\001\000\164\010"     -- this will do the dloop     0x0100        CDCCMD_DLOOP = 0x0001 
-DLOOP_CMD = "\001\000\099\005"     -- this will do the dloop     0x0100        CDCCMD_DLOOP = 0x0001 
+--DLOOP_CMD = "\001\000\022\001"     -- this will do the dloop     0x0100        CDCCMD_DLOOP = 0x0001 
 
 
 local version = zmq.version()
@@ -28,7 +30,7 @@ local ctx = zmq.context()
 -- local skt = ctx:socket{ zmq.REQ, linger = 0, rcvtimeo = 1000, connect = "ipc:///tmp/zmqfeeds/CmdChannel" }
    local skt = ctx:socket{ zmq.REQ,                              connect = "ipc:///tmp/zmqfeeds/CmdChannel" }
 
-for i=1,10000 do
+for i=1,1 do
 
     skt:send( DLOOP_CMD )
 

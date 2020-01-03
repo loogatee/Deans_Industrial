@@ -64,6 +64,16 @@ typedef struct timezone  timezone_t;
 
 
 
+typedef struct
+{
+    u8    cmdName[20];
+    int   parm1;
+    int   parm2;
+} PARMS_t;
+
+
+
+
 void *Serial_Recv  ( void *Sfd );
 void *Serial_Send  ( void *Sfd );
 void *PacketHandler( void *xyz );
