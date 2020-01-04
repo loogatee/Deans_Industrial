@@ -107,12 +107,10 @@ static void do_backchannel_response( void )
     }
     else if( !strncmp(S1buf,"InParms",7) )                          // 0..7      Field_0
     {
-        memcpy((void *)&XX,&S1buf[8],4);                            // 8..11     Field_1
+        memcpy((void *)&XX, &S1buf[8], 4);                          // 8..11     Field_1:  Pointer to PARMS_t struct
 
         lua_getglobal(G->LS1,"lua_Get_parms");                      // This is the name of the Lua function
-        sprintf(S2buf,"Z=%s",&S1buf[12]);                           // 12..N     Field_2       Note the 'Z=' addition (check lutils.lua)
-
-        lua_pushstring(G->LS1, S2buf);
+        lua_pushstring(G->LS1, &S1buf[12]);                         // input string to the Lua Function gets pushed onto the stack
         lua_pcall(G->LS1,1,1,0);                                    // executes the Lua function, 1 return arg on stack
 
         lua_pushnil(G->LS1);                                        // precursor needed for reading stack values

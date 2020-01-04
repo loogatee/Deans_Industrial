@@ -1,9 +1,9 @@
 #!/bin/bash
 gvim -p Makefile \
-cdc_cmds.h \
-proj_common.h \
+include/cdc_cmds.h \
+include/proj_common.h \
 healthcheck.c \
-PacketCentral.c \
+Canned_Packets.c \
 packet_recv.c \
 serial_recv.c \
 serial_send.c \

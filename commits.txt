@@ -1,4 +1,26 @@
 
+PacketCentral renamed to Canned_Packets.  Get A/D values working
+-------------------------------------------------
+    1/4/2020  10:56am
+
+    And also tightened up the code around input parameters.
+    That the Lua i/f code in packet_recv.
+
+
+
+PacketCentral is back in, and with a modified API
+-------------------------------------------------
+    1/2/2020  9:50pm
+
+    Working hard on finding the right paradigm for an API.
+
+    Lua server is (minorly) an issue.   packet_recv has
+    the Lua interpreter.   The backchannel for packet_recv
+    has become the de-factor Lua server interface.   Figure that.
+
+    Using Lua/packet_recv/backchannel to parse input parameters
+    on PacketCentral.     Working fine.
+
 
 BIGGIE LinuxHost: removing PacketCentral, going to pub/sub in serial_recv.c
 -------------------------------------------------

@@ -91,9 +91,9 @@ int main(void)
         return -1;
     }
 
-    if( pthread_create(&PCent_threadID, 0, PacketCentral, 0) != 0 )
+    if( pthread_create(&PCent_threadID, 0, Canned_Packets, 0) != 0 )
     {
-        printf("pthread_create Failure on PacketCentral\n");
+        printf("pthread_create Failure on Canned_Packets\n");
         return -1;
     }
 

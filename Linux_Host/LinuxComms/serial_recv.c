@@ -266,6 +266,7 @@ static void ProcessPacket( u8 thetag )
 
     switch( G->dbuf[0] )
     {
+        case  CDCAPI_ADGETALL:
         case  CDCAPI_DLOOP_FHOST: rc = zmq_send( G->CdcResponse, G->dbuf, len, 0 ); break;
 
         default:                  rc = zmq_send( G->PaktChannel, G->dbuf, len, 0 ); break;

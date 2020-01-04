@@ -19,18 +19,16 @@ local zmq = require("lzmq")
 --
 --  ADGetAllAvgs.lua
 --
-function AD_GetAllAvgs()
+function AD_GetAll()
     local SS,S1
     local t = {}
+
+    ADGETALL_CMD = "{ 'ADGetAll' }"
 
     local ctx = zmq.context()
     local skt = ctx:socket{ zmq.REQ, linger=0, rcvtimeo=1500, connect = "ipc:///tmp/zmqfeeds/CmdChannel" }
 
-    t[#t+1] = "\005"                              -- 0x0004 is the command
-    t[#t+1] = "\000"
-    t[#t+1] = "\000"                     -- this is a dummy
-
-    skt:send( table.concat(t) )
+    skt:send( ADGETALL_CMD )
 
     SS = skt:recv()
     if SS == nil then
@@ -73,7 +71,7 @@ end
 
 
 
---AD_GetAllAvgs()
+AD_GetAll()
 AD_GetNames()
 
 

@@ -51,8 +51,6 @@ typedef struct
 
 static Globes  Globals;
 
-PARMS_t  dbgParms;
-
 
 
 
@@ -138,7 +136,7 @@ u8 Get_datasize( void )
     do
     {
         val = (u8)(rand() & 0xff);
-    } while( val < 5 || val > 244 );
+    } while( val < 5 || val > 246 );
 
     return val;     
 }
@@ -146,19 +144,12 @@ u8 Get_datasize( void )
 
 static int PC_dloop( int  data_size, int num_loops )
 {
-    u8    dbuf[BUFLEN];
-    u8   *dptr,*tptr,tmpb;
+    u8    dbuf[BUFLEN],*dptr,*tptr,tmpb;
     uint  i,j,result;
-    int   rc;
-    int   was_zero;
+    int   rc, was_zero;
 
-    if( num_loops == -9999 ) { num_loops = 1;  }
-    if( data_size == -9999 ) { data_size = 49; }
-
-
-    printf(" data_size = %d,  num_loops = %d\n", data_size, num_loops);  fflush(stdout);
-
-
+    if( num_loops == -9999 || num_loops == 0   ) { num_loops = 1;   }
+    if( data_size == -9999 || data_size >= 246 ) { data_size = 246; }
 
 
     result    = DLOOP_GOOD;
@@ -166,9 +157,6 @@ static int PC_dloop( int  data_size, int num_loops )
     tptr      = &dptr[2];
     was_zero  = 0;
 
-    if( num_loops == 0    ) ++num_loops;
-    //if( data_size == 0    ) ++data_size;
-    if( data_size >= 246  ) data_size=246;
 
     seed_the_random();
 
@@ -262,7 +250,6 @@ static void PC_resetdev( void )
 //
 static void PC_adgetvals( u8 *abuf )
 {
-#define LEN_RBUF     70
 
     u8    dbuf[5],rbuf[LEN_RBUF];
     char  Sbuf[100];
@@ -296,12 +283,14 @@ static void PC_adgetvals( u8 *abuf )
     zmq_send( Globals.CmdChannel,  Sbuf, strlen(Sbuf), 0 );        // reply back to CmdChannel with ok msg
 } */
 
-/*
+
 //
 //   16 32-bit values are returned.   Len = 64bytes
 //
-static void PC_adgetallavgs( void )
+static void PC_adgetall( void )
 {
+#define LEN_RBUF     80
+
     u8     dbuf[5],rbuf[LEN_RBUF];
     char   S1buf[100],S2buf[200];
     uint   i,j,tmpu;
@@ -309,9 +298,9 @@ static void PC_adgetallavgs( void )
 
     memset(rbuf,0,LEN_RBUF);
 
-    dbuf[0] = CDCAPI_ADGETALLAVGS;       // Cmd Byte
-    dbuf[1] = 1;                         // Len Byte
-    dbuf[2] = 0;                         // a dummy
+    dbuf[0] = 1;                     // Len Byte
+    dbuf[1] = CDCAPI_ADGETALL;       // Cmd Byte
+    dbuf[2] = 0;                     // a dummy
 
     zmq_send( Globals.SerialChannel, dbuf, 3, 0 );                 // 3:  cmd byte + len byte + 1 data bytes
 
@@ -321,7 +310,7 @@ static void PC_adgetallavgs( void )
     }
     else
     {
-        for( j=2,i=0; i<16; ++i,j+=4)
+        for( j=5,i=0; i<16; ++i,j+=4)
         {
             memcpy((void *)&tmpu, (void *)&rbuf[j],  4);
             XX[i] = (tmpu == 0) ? 0.0 : (float)tmpu / 1000.0;
@@ -332,7 +321,7 @@ static void PC_adgetallavgs( void )
     }
 
     zmq_send( Globals.CmdChannel,  S2buf, strlen(S2buf), 0 );        // reply back to CmdChannel with ok msg
-} */
+}
 
 
 
@@ -341,25 +330,29 @@ static void PC_adgetallavgs( void )
 //================================================================================
 //================================================================================
 
+//
+//     struct
+//     {
+//         char      CmdName[8];      // "InParms\0".  exactly 8 bytes            0..7
+//         PARMS_t  *Pptr;            // parameters are written to this addr      8..11
+//         char      InputBuf[30];    // zero terminated string                  12..N
+//     }
 static void Get_InputParms( char *Sptr)
 {
-    u32     *dptr;
+    u32      Dval;
+    //u32     *dptr;
     char     dbuf[80];
     Globes  *G = &Globals;
 
-    memset(dbuf,0,60);
-    //printf("Sptr = %s\n",Sptr);
-
     strcpy(dbuf,"InParms");
 
-    dptr  = (u32 *)&dbuf[8];
-    *dptr = (u32)&G->localParms;
+    Dval = (u32)&G->localParms;
+    memcpy( &dbuf[8], (void *)&Dval, 4 );
 
     strcpy(&dbuf[12],Sptr);
-    dbuf[strlen(Sptr) + 13] = 0;
 
-    zmq_send(G->BackChannel_PR, dbuf, strlen(Sptr) + 13, ZMQ_NOBLOCK);      // 12 + 1
-    zmq_recv(G->BackChannel_PR, dbuf, 10, 0 );
+    zmq_send(G->BackChannel_PR, dbuf, strlen(Sptr) + 13, ZMQ_NOBLOCK);      // 12 + (The string \0 terminator)
+    zmq_recv(G->BackChannel_PR, dbuf, 10, 0 );                              // 1 byte comes back.  PARMS_t already filled
 }
 
 
@@ -412,7 +405,7 @@ static void Init_PacketCentral_ZMQs( void )
 //    dbuf[0] dbuf[1]:      16 bits representing Command
 //    dbuf[2]..dbuf[XX]:    optional data 
 //
-void *PacketCentral( void *dummy )
+void *Canned_Packets( void *dummy )
 {
     u8               dbuf[BUFLEN];
     zmq_pollitem_t   PollItems[3];
@@ -448,12 +441,12 @@ void *PacketCentral( void *dummy )
         if( !(PollItems[0].revents & ZMQ_POLLIN) ) { continue; }
 
         rc=zmq_recv( G->CmdChannel, dbuf, BUFLEN, 0 );           // data should be immediately available
-        dbuf[rc] = 0;
+        dbuf[rc] = 0;                                            // will guarantee string termination
 
         //
-        //   { 'Dloop', 100, 2 }    { 'Dloop', 100 }
+        //   { 'Dloop', 100, 2 }    { 'Dloop', 100 }   { 'Dloop' }
         //
-        Get_InputParms( (char *)dbuf );
+        Get_InputParms( (char *)dbuf );    // G->localParms gets filled with data
 
         //printf("cmdName: %s\n", G->localParms.cmdName);
         //printf("parm1:   %d\n", G->localParms.parm1);
@@ -462,6 +455,10 @@ void *PacketCentral( void *dummy )
         if( !strcmp((const char *)G->localParms.cmdName,"Dloop") )
         {
             PC_dloop(G->localParms.parm1,G->localParms.parm2);
+        }
+        else if( !strcmp((const char *)G->localParms.cmdName,"ADGetAll") )
+        {
+            PC_adgetall();
         }
         else
         {

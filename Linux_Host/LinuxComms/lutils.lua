@@ -107,32 +107,15 @@ function lua_Get_parms( Sval )
 
     if #Sval == 0 then return X end
 
-    local F = loadstring( Sval )
-
+    local F  = loadstring( 'Z=' .. Sval )
     if type(F) ~= 'function' then return X end
-
     F()
 
-    if Z[1] ~= nil and type(Z[1]) == 'string' then
-        T[1] = Z[1]
-    else
-        T[1] = 'none'
-    end
-
-    if Z[2] ~= nil and type(Z[2]) == 'number' then
-        T[2] = Z[2]
-    else
-        T[2] = -9999
-    end
-
-    if Z[3] ~= nil and type(Z[3]) == 'number' then
-        T[3] = Z[3]
-    else
-        T[3] = -9999
-    end
+    if Z[1] ~= nil and type(Z[1]) == 'string' then T[1] = Z[1] else T[1] = 'none' end
+    if Z[2] ~= nil and type(Z[2]) == 'number' then T[2] = Z[2] else T[2] = -9999  end
+    if Z[3] ~= nil and type(Z[3]) == 'number' then T[3] = Z[3] else T[3] = -9999  end
 
     Z=nil
-
     return T
 end
 

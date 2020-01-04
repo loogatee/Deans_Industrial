@@ -74,10 +74,10 @@ typedef struct
 
 
 
-void *Serial_Recv  ( void *Sfd );
-void *Serial_Send  ( void *Sfd );
-void *PacketHandler( void *xyz );
-void *PacketCentral( void *xyz );
+void *Serial_Recv   ( void *Sfd );
+void *Serial_Send   ( void *Sfd );
+void *PacketHandler ( void *xyz );
+void *Canned_Packets( void *xyz );
 
 
 

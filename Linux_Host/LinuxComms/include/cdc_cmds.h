@@ -49,7 +49,7 @@
 //
 #define   CDCAPI_DLOOP_FHOST     25
 #define   CDCAPI_ADGETVALS       29
-#define   CDCAPI_ADGETALLAVGS    30
+#define   CDCAPI_ADGETALL        30
 #define   CDCAPI_IMUP            0x67
 
 
