@@ -21,6 +21,7 @@
 
 #define HOSTCMD_DLOOP_OH  25
 #define HOSTCMD_ADCONFIG  28
+#define HOSTCMD_GET_ALLAD 30
 #define HOSTCMD_IMUP      0x67
 
 

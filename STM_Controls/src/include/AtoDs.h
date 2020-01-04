@@ -59,6 +59,7 @@ u16   AtoD_Get_ConfiguredChannels( void );
 void  AtoD_Set_value( u8 channel, u16 raw_val );
 void  AtoD_Get_Reading( u8 channel, u16 *raw, float *cooked );
 void  AtoD_Set_NewConfig( u8 Len, u8 *Dptr );
+void  AtoD_GetAllReadings( u32 *Dptr );
 
 void  AtoD_dbgShowStuff( void );
 

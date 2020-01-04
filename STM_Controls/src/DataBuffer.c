@@ -47,9 +47,9 @@ void DataBuffer_Init( void )
     dbuf_Items[1].IsAvail = True;
     dbuf_Items[2].IsAvail = True;
 
-    //UD_Print32("buf1: ", (u32)&dbuf_one[0]);
-    //UD_Print32("buf2: ", (u32)&dbuf_two[0]);
-    //UD_Print32("buf3: ", (u32)&dbuf_thr[0]);
+    UD_Print32("buf1: ", (u32)&dbuf_one[0]);
+    UD_Print32("buf2: ", (u32)&dbuf_two[0]);
+    UD_Print32("buf3: ", (u32)&dbuf_thr[0]);
 }
 
 

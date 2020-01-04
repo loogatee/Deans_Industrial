@@ -28,6 +28,7 @@
 #include "PacketDrivers.h"
 #include "PacketSendThread.h"
 #include "monitor_host.h"
+#include "DataBuffer.h"
 
 
 #define STATE_WAIT_HOSTUP          1
@@ -44,6 +45,7 @@ typedef struct
     DMA_InitTypeDef  dmaStruct;
     u8               state_machine;
     u32              Atime;
+    u32              Aparm;
     u8              *paktptr;
     u8               Trigger;
     u8               xxSeqn;
@@ -77,21 +79,6 @@ void PacketSendDriver_Init( void )
     Globals.Atime         = 0;
     Globals.Trigger       = 0;
     Globals.xxSeqn        = 0;
-
-    //   [0] = fixed0         5 Header Bytes
-    //   [1] = fixed1
-    //   [2] = seqn
-    //   [3] = len      to retrieve is:  len + 1 + 1        len bytes + 1 Cmd Byte + 1 Csum Byte
-    //   [4] = cmd
-    //   [5] = data[0]
-    //   [6] = data[1]
-    //    .....
-    //  [56] = data[51] = 'Z'
-    //  [57] = data[52] = '\r'
-    //  [58] = data[53] = '\n'
-    //  [59] = csum                    csum byte is not included in the length
-    //
-    //memcpy(dbgpacket, "\314\127\001\066\146abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\r\n\001",60);
 }
 
 
@@ -104,7 +91,7 @@ static void doCsum( u8  *Pptr )
     lendata = Pptr[PAKTLENi];
 
     //
-    // checksum includes BOTH len byte and cmd byte
+    // *****  checksum includes BOTH len byte and cmd byte
     //
     for( csum=0, dptr=&Pptr[PAKTLENi], i=0; i < (lendata+2); ++i )
     {
@@ -164,6 +151,9 @@ void PacketSendDriver_Process( void )
 
         G->state_machine = STATE_WAIT_THEN_GO;                                      // Look for another packet to send
         G->Atime         = GetSysTick();                                            // todo: needed?
+
+        if( G->Aparm ) { DataBuffer_Return( (u8 *)G->Aparm ); }                     // Return the DataBuffer IF Aparm is non-zero
+
         PacketSend_xfer_Done();                                                     // set semaphore to indicate Done!
         return;
     }
@@ -171,12 +161,13 @@ void PacketSendDriver_Process( void )
 }
 
 
-void PacketSendDriver_Go( u8 *Packetptr )
+void PacketSendDriver_Go( u8 *Packetptr, u32 parm )
 {
     GLOBALS_PacketSend_t   *G = &Globals;
 
-    // UD_PrintSTR("SendDriver_Go\n\r");
+    //UD_Print32("Go: ", parm);
 
+    G->Aparm   = parm;
     G->paktptr = Packetptr;
     G->Trigger = 1;
 }

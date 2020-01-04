@@ -75,10 +75,6 @@ typedef struct
 static GLOBALS_PacketRecv_t    Globals;
 
 
-//static u8     dbgI;
-//static u8     dbgch;
-//static u8     dbgpacket[256];
-
 
 static void Set_ReceiveEnabled_Pin( u32 val )
 {
