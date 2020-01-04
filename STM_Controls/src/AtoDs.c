@@ -392,6 +392,30 @@ GLOBALLY_VISIBLE void  AtoD_Set_NewConfig( u8 Len, u8 *Dptr )
 }
 
 
+//
+GLOBALLY_VISIBLE void AtoD_GetAllReadings( u32 *Dptr )
+{
+    u8           i;
+    ADInputs_t  *AD;
+    u16          Lraw;
+    float        Lcooked;
+
+
+    for( i=0; i < 16; ++i )
+    {
+        AD = &AtoD_Data[i];
+
+        if( AD->Enabled == true )
+        {
+            AtoD_Get_Reading( i, &Lraw, &Lcooked );
+            Dptr[i] = (u32)(Lcooked * 1000.0);
+        }
+        else
+        {
+            Dptr[i] = 0;
+        }
+    }
+}
 
 
 

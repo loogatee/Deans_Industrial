@@ -1,4 +1,5 @@
 
+
 PacketCentral renamed to Canned_Packets.  Get A/D values working
 -------------------------------------------------
     1/4/2020  10:56am
@@ -21,6 +22,21 @@ PacketCentral is back in, and with a modified API
     Using Lua/packet_recv/backchannel to parse input parameters
     on PacketCentral.     Working fine.
 
+
+Get A/D values working.  Quite a bit of refinement
+------------------------------------------------
+   1/4/2020
+
+   Controls:
+
+     Changed Q values on send thread.  Added an extra 32-bit value.
+     It can be used to say "return this data buffer when the transfer
+     is complete"
+
+     All the different endpoints for sendthread where changed to
+     go into a single call:
+
+               PacketSend_pakt( )
 
 BIGGIE LinuxHost: removing PacketCentral, going to pub/sub in serial_recv.c
 -------------------------------------------------

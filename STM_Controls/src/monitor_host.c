@@ -28,6 +28,7 @@
 #include "DataBuffer.h"
 #include "PacketDrivers.h"
 #include "PacketSendThread.h"
+#include "Host_Cmds.h"
 
 
 #define STATE_LOOK_FOR_0           1
@@ -108,16 +109,16 @@ void MonitorHost_Process( void )
                                      }
                                      if( G->has_IMUPpakt == True )
                                      {
-                                         UD_PrintSTR("state: STABLE_UP\n\r");
+                                         UD_Print32("state: STABLE_UP   ", (u32)G->sendBuf1);
                                          G->has_IMUPpakt  = False;
                                          G->state_machine = STATE_STABLE_UP;
 
-                                         PacketSend_imup2( 5, G->sendBuf1 );
+                                         PacketSend_pakt( HOSTCMD_IMUP, 5, G->sendBuf1, 0 );
 
                                          if( G->Sent_ADreq == False )
                                          {
                                              G->Sent_ADreq = True;
-                                             PacketSend_ADconfig( 2, G->sendBuf2 );
+                                             PacketSend_pakt( HOSTCMD_ADCONFIG, 2, G->sendBuf2, 0 );
                                          }
 
                                      }

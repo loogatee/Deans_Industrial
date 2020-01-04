@@ -26,6 +26,7 @@
 #include "AtoDs.h"
 #include "PacketDrivers.h"
 #include "PacketSendThread.h"
+#include "Host_Cmds.h"
 
 #define  SAFE_MEM_ADDR           (&Globals.cmds_safe)
 
@@ -309,7 +310,7 @@ static bool cmds_B( void )
     }
     else if( ch1 == '8' )
     {
-        PacketSend_ADconfig( 2, dbgbuffer );
+        PacketSend_pakt( HOSTCMD_ADCONFIG, 2, dbgbuffer, 0 );
     }
 
     return TRUE;

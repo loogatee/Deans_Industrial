@@ -20,9 +20,14 @@
 
 
 void PacketSend_TaskCreate( void );
-void PacketSend_imup2( u8 len, u8 *dataptr );
 void PacketSend_xfer_Done( void );
-void PacketSend_ADconfig( u8 len, u8 *dataptr );
-void PacketSend_DloopResp( u8 len, u8 *dataptr );
+
+//void PacketSend_imup2( u8 len, u8 *dataptr );
+//void PacketSend_ADconfig( u8 len, u8 *dataptr );
+//void PacketSend_DloopResp( u8 len, u8 *dataptr );
+//void PacketSend_AllADResp( u8 len, u8 *dataptr, u32 f2 );
+
+void PacketSend_pakt( u8 cmd, u8 len, u8 *dataptr, u32 zero_or_retBuf );
+
 
 #endif /* INCLUDE_PACKETSENDTHREAD_H_ */

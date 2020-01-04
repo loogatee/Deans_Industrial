@@ -37,74 +37,76 @@
 #define Q_ELEMENTS    3
 #define Q_ITEMSIZE    sizeof( uint32_t )
 
+#define LENi  0
+#define CMDi  1
+#define SODi  2
+
+
 typedef struct
 {
     uint32_t           Ntime;
     TaskHandle_t       RT_Thand;
     QueueHandle_t      RQhand;
     StaticQueue_t      StaticQueue;
-    u8                 DataBuffer[ Q_ELEMENTS * Q_ITEMSIZE ];
+    u8                 DloopBuf[256];
+    u8                 StaticQBuffer[ Q_ELEMENTS * Q_ITEMSIZE ];    // data buffer reserved for StaticQueue
 } GLOBALS_PRT_t;
 
 
-
-
 static GLOBALS_PRT_t   Globals;
-static u8              dloopBuffer[256];
 
 
 
 STATIC void PacketRecv_Thread(void const * argument)
 {
-    u8   *Dptr;
+    Bool            ReturnTheBuffer;
+    u8             *Dptr;
+    GLOBALS_PRT_t  *G = &Globals;
 
     while(1)
     {
-        xQueueReceive( Globals.RQhand, &Dptr, portMAX_DELAY );
+        xQueueReceive( G->RQhand, &Dptr, portMAX_DELAY );               // Hang here till incoming
 
-        // UD_Print32("Qrecv: ", (u32)Dptr);
+        ReturnTheBuffer = True;                                         // Default: yes!
 
-
-        // [0] is len
-        // [1] is cmd
-        // [2] is data[0]
-        switch( Dptr[1] )
+        switch( Dptr[CMDi] )
         {
-        case HOSTCMD_IMUP:
+        case HOSTCMD_IMUP:                                              // 1st packet after Host Comm App is Up!
 
-            if( !memcmp(&Dptr[2],"IMUP",4) )
-            {
-                UD_Print8("IMUP paktlen: ",  (u8)Dptr[0]);
-                MonitorHost_IMUP_pakt();
-            }
+            UD_Print8("IMUP paktlen: ",  Dptr[LENi]);                   // msg to the peeps
+            MonitorHost_IMUP_pakt();                                    // Signal that host is up.
             break;
 
-        case HOSTCMD_ADCONFIG:
+        case HOSTCMD_ADCONFIG:                                          // Set A/D config
 
-            UD_Print8("ADCONFIG paktlen: ",  (u8)Dptr[0]);
-            AtoD_Set_NewConfig( Dptr[0], &Dptr[2] );
+            UD_Print8("ADCONFIG paktlen: ",  Dptr[LENi]);               // bark a lil bit
+            AtoD_Set_NewConfig( Dptr[LENi], &Dptr[SODi] );              // Configs A/D based on data @ Dptr[2]
             break;
 
-        case HOSTCMD_DLOOP_OH:
+        case HOSTCMD_DLOOP_OH:                                          // Dloop, originating on the host
 
-            //UD_Print8("DLOOP_OH paktlen: ",  (u8)Dptr[0]);
-            memcpy((void *)&dloopBuffer[PAKTSODi],(void *)&Dptr[2], Dptr[0]);
-            PacketSend_DloopResp( Dptr[0], dloopBuffer );
+            memcpy(&G->DloopBuf[PAKTSODi], &Dptr[SODi], Dptr[LENi]);    // copies all the data from input buffer to a local buffer
+            PacketSend_pakt(HOSTCMD_DLOOP_OH,Dptr[LENi],G->DloopBuf,0); // Sends the newly populated buffer back to the host
             break;
 
-        default: UD_Print8N("ERROR DEFAULT, cmd: ",  (u8)Dptr[1]);
+        case HOSTCMD_GET_ALLAD:                                         // All 16 A/D's returned.  0 returned for non-configured Sensors
+
+            AtoD_GetAllReadings( (u32 *)&Dptr[8] );                     //  Note the 8-byte alignment of the address.
+            PacketSend_pakt( HOSTCMD_GET_ALLAD, 67, Dptr, (u32)Dptr );  //  (16*4) + 3 empty bytes: [5],[6],[7]
+            ReturnTheBuffer = False;                                    //  Buffer will be returned in the Send driver
+            break;
+
+        default: UD_Print8N("ERROR DEFAULT, cmd: ",  Dptr[CMDi]);       // todo: Log this condition
         }
 
-
-        DataBuffer_Return( Dptr );
+        if( ReturnTheBuffer == True ) { DataBuffer_Return( Dptr ); }    // Very Important to return the damn buffer!
     }
 }
 
 
-GLOBALLY_VISIBLE void PacketRecv_Qsend( u8 *bufptr )
+GLOBALLY_VISIBLE void PacketRecv_Qsend( u8 *bufptr )                    // All received packets are Q'ed by calling this function.
 {
-    //UD_Print32("Qsend: ", (u32)bufptr);
-    xQueueSend( Globals.RQhand, &bufptr, 0);
+    xQueueSend( Globals.RQhand, &bufptr, 0);                            // Bing!
 }
 
 
@@ -112,7 +114,7 @@ GLOBALLY_VISIBLE void PacketRecv_Qsend( u8 *bufptr )
 
 GLOBALLY_VISIBLE void PacketRecv_TaskCreate( void )
 {
-    Globals.RQhand = xQueueCreateStatic( Q_ELEMENTS, Q_ITEMSIZE, Globals.DataBuffer, &Globals.StaticQueue);
+    Globals.RQhand = xQueueCreateStatic( Q_ELEMENTS, Q_ITEMSIZE, Globals.StaticQBuffer, &Globals.StaticQueue);
 
     xTaskCreate((TaskFunction_t)PacketRecv_Thread,(const char * const)"PacketRecv", 128, 0, 1, &Globals.RT_Thand);
 }

@@ -27,7 +27,7 @@
 
 void PacketSendDriver_Init( void );
 void PacketSendDriver_Process( void );
-void PacketSendDriver_Go( u8 *Packetptr );
+void PacketSendDriver_Go( u8 *Packetptr, u32 parm );
 
 void PacketRecvDriver_Init( void );
 void PacketRecvDriver_Process( void );
