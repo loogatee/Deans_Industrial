@@ -61,6 +61,7 @@
 #define BM_ATOD_CHAN15  0x4000
 #define BM_ATOD_CHAN16  0x8000
 
+// Name Translation Entries
 #define AD_NTENTRYS   19
 
 #define I0_CDv    1
@@ -123,7 +124,7 @@ typedef struct
     AN_MSG1    ad_fields[NUM_AD_CHANS];
     u32        coef1;
     u32        coef2;
-} AD_MSGPKT;                                     // There is not a variable of this, it describes an incoming 'config packet'
+} AD_MSGPKT;                  // There is not a variable of this, its the data format of an incoming 'config packet'
 
 
 
@@ -179,9 +180,6 @@ static u8 Canned_AtoD_config[56] = {
 };
 
 
-static u32 dbgcoef1, dbgcoef2;
-
-
 static void        AD_DoConfig( u8 *dptr );
 static const char *Get_AD_NameTrans( uint iNum );
 static float       Get_Chan0_ValCooked( void );
@@ -196,24 +194,26 @@ GLOBALLY_VISIBLE void AtoD_Init( void )
 
     AD_DoConfig( Canned_AtoD_config );
 
-    for( i=0; i < 0; ++i )
+    for( i=0; i < CONTROLSIGCOUNT; ++i )
+    {
         CSVar[i].Value = 0.0;
+    }
+
+    for( i=0; i < NUM_AD_CHANS; ++i )
+    {
+        AtoD_Data[i].ValRaw    = 0;
+        AtoD_Data[i].ValCooked = 0.0;
+    }
 }
 
 
 GLOBALLY_VISIBLE void AtoD_dbgShowStuff( void )
 {
-    int          i;
-    ADInputs_t  *AD;
+    ADInputs_t  *AD = &AtoD_Data[12];                         // random, just pick one     0..15
 
     UD_Print32( "AtoD_ConfiguredChannels = ", (u32)AtoD_ConfiguredChannels );
-    UD_Print32( "dbgcoef1 = ", (u32)dbgcoef1 );
-    UD_Print32( "dbgcoef2 = ", (u32)dbgcoef2 );
 
-    i  = 12;                // random, just pick one     0..15
-    AD = &AtoD_Data[i];
-
-    printf    ( "cd[%d].ConfigName = %s\n\r", i, AD->ConfigName );
+    printf    ( "cd[%d].ConfigName = %s\n\r", 12, AD->ConfigName );
     UD_Print32( "cd[x].ConfigNum   = ",          AD->ConfigNum);
     UD_Print32( "cd[x].enabled     = ",          AD->Enabled);
     UD_Print32( "cd[x].type        = ",          AD->Type);
@@ -275,14 +275,7 @@ GLOBALLY_VISIBLE void AtoD_Set_value( u8 channel, u16 raw_val )
 }
 
 
-GLOBALLY_VISIBLE void  AtoD_Get_Reading( u8 channel, u16 *raw, float *cooked )
-{
-    if( channel >= NUM_AD_CHANS )         // if channel out-of-bounds, force to channel 0
-        channel = 0;                      //   so that something valid is returned
 
-    *raw    = AtoD_Data[channel].ValRaw;
-    *cooked = AtoD_Data[channel].ValCooked;
-}
 
 
 
@@ -353,16 +346,8 @@ static void AD_DoConfig( unsigned char *dptr )
             AD->Coefs[4] = 1.0;
         }
 
-        if( AD->ConfigNum == I0_SYw )         // I0.SYw
-        {
-            dbgcoef1     = MSGptr->coef1;
-            AD->Coefs[0] = ((float)MSGptr->coef1 / (float)100.0);       // byte ordering is correct so no need to swap
-        }
-        else if( AD->ConfigNum == I0_CPw )     // I0.CPw
-        {
-            dbgcoef2 = MSGptr->coef2;
-            AD->Coefs[0] = ((float)MSGptr->coef2 / (float)100.0);       // byte ordering is correct
-        }
+        if     ( AD->ConfigNum == I0_SYw )  { AD->Coefs[0] = ((float)MSGptr->coef1 / (float)100.0); }
+        else if( AD->ConfigNum == I0_CPw )  { AD->Coefs[0] = ((float)MSGptr->coef2 / (float)100.0); }
     }
 
     if( AtoD_ConfiguredChannels == 0 ) { AtoD_ConfiguredChannels = BM_ATOD_CHAN1; }
@@ -389,6 +374,16 @@ GLOBALLY_VISIBLE void  AtoD_Set_NewConfig( u8 Len, u8 *Dptr )
 
     memcpy( (void *)Canned_AtoD_config, (void *)Dptr, 56 );        // copy local
     I2C_1_master_NewConfig();                                      // provide trigger, so it's synced up with the thread
+}
+
+
+GLOBALLY_VISIBLE void  AtoD_Get_Reading( u8 channel, u16 *raw, float *cooked )
+{
+    if( channel >= NUM_AD_CHANS )         // if channel out-of-bounds, force to channel 0
+        channel = 0;                      //   so that something valid is returned
+
+    *raw    = AtoD_Data[channel].ValRaw;
+    *cooked = AtoD_Data[channel].ValCooked;
 }
 
 

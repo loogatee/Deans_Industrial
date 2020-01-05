@@ -1,4 +1,9 @@
 
+cleanup on AtoDs.c, and found/fixed bug in AtoD_init.
+-------------------------------------------------
+    1/5/2020  2:15pm
+    eom
+
 
 PacketCentral renamed to Canned_Packets.  Get A/D values working
 -------------------------------------------------
