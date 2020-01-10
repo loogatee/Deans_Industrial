@@ -1,0 +1,17 @@
+# Monkey Plugins Loader
+# =====================
+# Monkey plugins are extended functionalities for Monkey,
+# the main directive to load a plugin is LoadPlugin plus
+# the absolute path for the desired plugin.
+#
+# Please check the following list of available plugins:
+
+[PLUGINS]
+    # Load /usr/lib/monkey/monkey-auth.so
+    # Load /usr/lib/monkey/monkey-cgi.so
+    # Load /usr/lib/monkey/monkey-cheetah.so
+    Load /usr/lib/monkey/monkey-dirlisting.so
+    Load /usr/lib/monkey/monkey-fastcgi.so
+    Load /usr/lib/monkey/monkey-logger.so
+    # Load /usr/lib/monkey/monkey-mandril.so
+

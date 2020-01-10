@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> Led Control Page </title>
+    <script language="javascript">
+
+       TYPE_RESPONSE = 0
+       TYPE_REQUEST  = 1
+    
+       var xhttp  =  new XMLHttpRequest();
+       var myImgs =  [ '/imgs/btn106_onoff.gif', '/imgs/btn106_on.gif', '/imgs/btn106_off.gif' ];
+
+       function StateChange_Callback()
+       {
+            if (xhttp.readyState == 4)
+            {
+                var response = xhttp.responseText;
+                console.log(response);
+                xjs = JSON.parse(response);
+
+                if     ( xjs.led0 != null ) { if(xjs.led0.toLowerCase() == "on") Bclick_1a(0); else Bclick_1b(0); }
+                else if( xjs.led1 != null ) { if(xjs.led1.toLowerCase() == "on") Bclick_2a(0); else Bclick_2b(0); }
+                else if( xjs.led2 != null ) { if(xjs.led2.toLowerCase() == "on") Bclick_3a(0); else Bclick_3b(0); }
+                else if( xjs.led3 != null ) { if(xjs.led3.toLowerCase() == "on") Bclick_4a(0); else Bclick_4b(0); }
+            }
+       }
+
+       function Bclick_1a(p1)  { ChangePic('B1a', '_on',    'led0=on',   p1)  }
+       function Bclick_1b(p1)  { ChangePic('B1a', '_onoff', 'led0=off',  p1)  }
+       function Bclick_2a(p1)  { ChangePic('B2a', '_on',    'led1=on',   p1)  }
+       function Bclick_2b(p1)  { ChangePic('B2a', '_onoff', 'led1=off',  p1)  }
+       function Bclick_3a(p1)  { ChangePic('B3a', '_on',    'led2=on',   p1)  }
+       function Bclick_3b(p1)  { ChangePic('B3a', '_onoff', 'led2=off',  p1)  }
+       function Bclick_4a(p1)  { ChangePic('B4a', '_on',    'led3=on',   p1)  }
+       function Bclick_4b(p1)  { ChangePic('B4a', '_onoff', 'led3=off',  p1)  }
+
+
+       // do_request = 0:   Response from the Callback
+       //            = 1:   Request from the button press
+       function ChangePic (imgname, status, led_num, do_request)
+       {
+           if (do_request == TYPE_RESPONSE)
+           {
+               document.images[imgname].src  = '/imgs/btn106' + status + '.gif';
+           }
+           else
+           {
+               var url = '/lua/d2.lua?F=setled&' + led_num;
+               xhttp.open('GET', url, true);
+               xhttp.onreadystatechange = StateChange_Callback;
+               xhttp.send(null);
+           }
+       }
+
+       function ChangeXic (imgname, status, led_num, do_request)
+       {
+           if (do_request == TYPE_RESPONSE)
+           {
+               document.images[imgname].src  = '/imgs/btn106' + status + '.gif';
+           }
+           else
+           {
+               var url = '/setled?' + led_num;
+               xhttp.open('GET', url, true);
+               xhttp.onreadystatechange = StateChange_Callback;
+               xhttp.send(null);
+           }
+       }
+
+    </script>
+</head>
+<body bgcolor='#FFFDDD'>
+
+    <br><br><br>
+
+    <table height=72 align=center border=0>
+
+      <tr> <!-- mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm -->
+        <td valign=center><b> LED1 </b></td>
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+        <td><a onmousedown='Bclick_1a(1)'><img name='B1a' src='/imgs/btn106_onoff.gif'></a></td>
+        <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+        <td><a onmousedown='Bclick_1b(1)'><img name='B1b' src='/imgs/btn106_off.gif'></a></td>
+      </tr>
+
+      <tr><td colspan=5> &nbsp; </td></tr>
+
+      <tr> <!-- mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm -->
+        <td><b>LED2</b></td>
+        <td></td>
+        <td><a onmousedown='Bclick_2a(1)'><img name='B2a' src='/imgs/btn106_onoff.gif'></a></td>
+        <td></td>
+        <td><a onmousedown='Bclick_2b(1)'><img name='B2b' src='/imgs/btn106_off.gif'></a></td>
+      </tr>
+
+      <tr><td colspan=5> &nbsp; </td></tr>
+
+      <tr> <!-- mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm -->
+        <td><b>LED3</b></td>
+        <td></td>
+        <td><a onmousedown='Bclick_3a(1)'><img name='B3a' src='/imgs/btn106_onoff.gif'></a></td>
+        <td></td>
+        <td><a onmousedown='Bclick_3b(1)'><img name='B3b' src='/imgs/btn106_off.gif'></a></td>
+      </tr>
+
+      <tr><td colspan=5> &nbsp; </td></tr>
+
+      <tr> <!-- mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm -->
+        <td><b>LED4</b></td>
+        <td></td>
+        <td><a onmousedown='Bclick_4a(1)'><img name='B4a' src='/imgs/btn106_onoff.gif'></a></td>
+        <td></td>
+        <td><a onmousedown='Bclick_4b(1)'><img name='B4b' src='/imgs/btn106_off.gif'></a></td>
+      </tr>
+
+      <tr><td colspan=5> &nbsp; </td></tr>
+
+    </table>
+
+    <script src="/js/jQuery.js"></script>
+</body>
+</html>
+

@@ -4,3 +4,4 @@ Linux_Host/LinuxComms/*.o
 Linux_Host/LinuxComms/cdc3
 Linux_Host/LinuxComms/gpioonly
 Linux_Host/LinuxComms/Dloop
+dart6ul_UbuntuBase/rootfs

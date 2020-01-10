@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <title> Get A/D Values</title>
+   <style>
+      a:link    { text-decoration: none; }
+      a:visited { text-decoration: none; }
+      a:hover   { text-decoration: none; }
+      a:active  { text-decoration: none; }
+      .evenrow  { background-color: #ececec; }
+   </style>
+
+   <script language="javascript">
+
+      var xmlHttp = new XMLHttpRequest();
+      var xHttp = new XMLHttpRequest();
+
+      function cb1()
+      {
+          if (xmlHttp.readyState == 4)
+          {
+              var valI,i;
+              var response = xmlHttp.responseText;
+              var xjs      = JSON.parse(response);
+
+              console.log(response);
+
+              for( i=0; i<16; ++i ) {
+                  valI = "val" + i.toString();
+                  document.getElementById(valI).innerHTML = xjs.ADGetAllAvgs[i];
+              }
+          }
+      }
+
+      function cb2()
+      {
+          if (xHttp.readyState == 4)
+          {
+              var valI,i;
+              var response = xHttp.responseText;
+              var xjs      = JSON.parse(response);
+
+              console.log(response);
+
+              for( i=0; i<16; ++i ) {
+                  valI = "nam" + i.toString();
+                  document.getElementById(valI).innerHTML = xjs.ADGetNames[i];
+              }
+          }
+      }
+
+      function Get_ADVals_click()
+      {
+          var ValX,i,url;
+
+          for( i=0; i<16; ++i ) {
+              ValX = "val" + i.toString();
+              document.getElementById(ValX).innerHTML = "";
+          }
+
+          url = "/lua/ADGetAllAvgs.lua";
+          xmlHttp.open("GET", url, true);
+          xmlHttp.onreadystatechange = cb1;
+          xmlHttp.send(null);
+      }
+
+      function Get_ADNames_click()
+      {
+          var url = "/lua/ADGetNames.lua";
+          xHttp.open("GET", url, true);
+          xHttp.onreadystatechange = cb2;
+          xHttp.send(null);
+      }
+
+      function mOver(parm)
+      {
+          document.getElementById(parm).value = "";
+      }
+
+   </script>
+
+</head>
+
+
+<body bgcolor="#FFFDDD">
+
+    <br><br>
+
+    <a href="javascript:Get_ADVals_click()">Get A/D Vals</a>
+
+    <br><br>
+
+    <table border=0 cellspacing=0 cellpadding=1 id="adtable">
+
+      <tr> <td width=100>chan1</td>
+           <td width=120 id="val0">&nbsp;</td>
+           <td width=60  id="nam0">&nbsp;</td>   </tr>
+
+      <tr class="evenrow"> <td>chan2</td>
+           <td id="val1">&nbsp;</td>
+           <td id="nam1">&nbsp;</td>   </tr>
+
+      <tr> <td>chan3</td>
+           <td id="val2">&nbsp;</td>
+           <td id="nam2">&nbsp;</td>   </tr>
+
+      <tr class="evenrow"> <td>chan4</td>
+           <td id="val3">&nbsp;</td>
+           <td id="nam3">&nbsp;</td>   </tr>
+
+      <tr> <td>chan5</td>
+           <td id="val4">&nbsp;</td>
+           <td id="nam4">&nbsp;</td>   </tr>
+
+      <tr class="evenrow"> <td>chan6</td>
+           <td id="val5">&nbsp;</td>
+           <td id="nam5">&nbsp;</td>   </tr>
+
+      <tr> <td>chan7</td>
+           <td id="val6">&nbsp;</td>
+           <td id="nam6">&nbsp;</td>   </tr>
+
+      <tr class="evenrow"> <td>chan8</td>
+           <td id="val7">&nbsp;</td>
+           <td id="nam7">&nbsp;</td>   </tr>
+
+      <tr> <td>chan9</td>
+           <td id="val8">&nbsp;</td>
+           <td id="nam8">&nbsp;</td>   </tr>
+
+      <tr class="evenrow"> <td>chan10</td>
+           <td id="val9">&nbsp;</td>
+           <td id="nam9">&nbsp;</td>   </tr>
+
+      <tr> <td>chan11</td>
+           <td id="val10">&nbsp;</td>
+           <td id="nam10">&nbsp;</td>   </tr>
+
+      <tr class="evenrow"> <td>chan12</td>
+           <td id="val11">&nbsp;</td>
+           <td id="nam11">&nbsp;</td>   </tr>
+
+      <tr> <td>chan13</td>
+           <td id="val12">&nbsp;</td>
+           <td id="nam12">&nbsp;</td>   </tr>
+
+      <tr class="evenrow"> <td>chan14</td>
+           <td id="val13">&nbsp;</td>
+           <td id="nam13">&nbsp;</td>   </tr>
+
+      <tr> <td>chan15</td>
+           <td id="val14">&nbsp;</td>
+           <td id="nam14">&nbsp;</td>   </tr>
+
+      <tr class="evenrow"> <td>chan16</td>
+           <td id="val15">&nbsp;</td>
+           <td id="nam15">&nbsp;</td>   </tr>
+
+    </table>
+
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+
+<script language="javascript">
+      var url = "/lua/ADGetNames.lua";
+      xHttp.open("GET", url, true);
+      xHttp.onreadystatechange = cb2;
+      xHttp.send(null);
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

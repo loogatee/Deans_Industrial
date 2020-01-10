@@ -1,0 +1,46 @@
+
+- logged in as johnr
+
+- sudo apt-get install git
+
+- cd /opt
+
+      sudo chmod 777 .
+
+- git clone https://github.com/SnarkyClark/luafcgid.git
+
+      cd luafcgid
+          ./configure
+          cp Makefile src
+
+      cd src
+          edit Makefile: change 51 to 5.1, weird LDFLAGS thing
+          edit main.c:
+               - #define __need_timespec
+               - chmod((void *)"/var/tmp/luafcgid.sock", 0777);
+               - make
+
+      cd ..     (/opt/luafcgid)
+
+          sudo mkdir /etc/luafcgid
+          sudo cp scripts/etc/config.debian.lua /etc/luafcgid/config.lua
+
+               - add:  daemonize = 1     **BIG DEAL!!!
+
+          edit scripts/luafcgid.lua         remove the print statement
+
+          sudo cp scripts/luafcgid.lua /usr/share/lua/5.1
+
+          sudo cp src/luafcgid /usr/bin
+
+      cd src
+
+         sudo ./luafcgid /etc/luafcgid/config.lua
+
+      manually made /var/log/luafcgid/luafcgid.log
+
+
+      do all the stuff in /etc/init.d
+
+
+

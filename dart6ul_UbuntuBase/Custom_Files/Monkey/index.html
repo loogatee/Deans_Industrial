@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <title> Simple Index Page </title>
+   <style>
+      a:link    { text-decoration: none; }
+      a:visited { text-decoration: none; }
+      a:hover   { text-decoration: none; }
+      a:active  { text-decoration: none; }
+   </style>
+
+   <script language="javascript">
+
+      xmlHttp = new XMLHttpRequest();
+
+      function cb1()
+      {
+          if (xmlHttp.readyState == 4)
+          {
+              var response = xmlHttp.responseText;
+              console.log(response);
+              xjs = JSON.parse(response);
+
+              if( xjs.led0 != null )
+              {
+                  //console.log("try xjs.led0: " + xjs.led0);
+                  document.getElementById("led0box").value = "led0: " + xjs.led0;
+              }
+              else if( xjs.led1 != null )
+                  document.getElementById("led1box").value = "led1: " + xjs.led1;
+              else if( xjs.led2 != null )
+                  document.getElementById("led2box").value = "led2: " + xjs.led2;
+              else if( xjs.led3 != null )
+                  document.getElementById("led3box").value = "led3: " + xjs.led3;
+              else if( xjs.dloop != null )
+                  document.getElementById("dloopbox").value = "dloop: " + xjs.dloop;
+              else if( xjs.setled != null )
+                  document.getElementById("led3box").value = "errled0: " + xjs.setled;
+          }
+      }
+
+      function cb2()
+      {
+          if (xmlHttp.readyState == 2)
+              document.getElementById("doresetbox").value = "Reset sent";
+      }
+
+      function cb3()
+      {
+          if (xmlHttp.readyState == 2)
+              document.getElementById("adconfigbox").value = "ADconfig sent";
+      }
+
+      function cb4()
+      {
+          if (xmlHttp.readyState == 2)
+              document.getElementById("adgetvalsbox1").value = "ADGetVals sent";
+          else if (xmlHttp.readyState == 4)
+          {
+              var response = xmlHttp.responseText;
+              console.log(response);
+              xjs = JSON.parse(response);
+
+              if( xjs.ADGetVals != null )
+                  document.getElementById("adgetvalsbox1").value = xjs.ADGetVals;
+          }
+
+      }
+
+      function cb5()
+      {
+          if (xmlHttp.readyState == 2)
+              document.getElementById("adgetvalsbox2").value = "ADGetVals sent";
+          else if (xmlHttp.readyState == 4)
+          {
+              var response = xmlHttp.responseText;
+              console.log(response);
+              xjs = JSON.parse(response);
+
+              if( xjs.ADGetVals != null )
+                  document.getElementById("adgetvalsbox2").value = xjs.ADGetVals;
+          }
+
+      }
+
+      function ledX_click(parm)
+      {
+          var url = "/lua/d2.lua?F=setled&" + parm;
+          xmlHttp.open("GET", url, true);
+          xmlHttp.onreadystatechange = cb1;
+          xmlHttp.send(null);
+      }
+
+      function ledY_click(parm)
+      {
+          var url = "/setled?" + parm;
+          xmlHttp.open("GET", url, true);
+          xmlHttp.onreadystatechange = cb1;
+          xmlHttp.send(null);
+      }
+
+      function dloop_click(parm)
+      {
+          document.getElementById("dloopbox").value = ""
+          var url = "/lua/d2.lua?F=dloop&xx=0";
+          xmlHttp.open("GET", url, true);
+          xmlHttp.onreadystatechange = cb1;
+          xmlHttp.send(null);
+      }
+
+      function doreset_click(parm)
+      {
+          document.getElementById("doresetbox").value = ""
+          var url = "/lua/d2.lua?F=doreset";
+          xmlHttp.open("GET", url, true);
+          xmlHttp.onreadystatechange = cb2;
+          xmlHttp.send(null);
+      }
+
+      function adconfig_click(parm)
+      {
+          document.getElementById("adconfigbox").value = ""
+          var url = "/lua/ADconfig.lua";
+          xmlHttp.open("GET", url, true);
+          xmlHttp.onreadystatechange = cb3;
+          xmlHttp.send(null);
+      }
+
+      function adgetvals1_click(parm)
+      {
+          document.getElementById("adgetvalsbox1").value = ""
+          var url = "/lua/ADGetVals.lua?" + parm;
+          xmlHttp.open("GET", url, true);
+          xmlHttp.onreadystatechange = cb4;
+          xmlHttp.send(null);
+      }
+
+      function adgetvals2_click(parm)
+      {
+          document.getElementById("adgetvalsbox2").value = ""
+          var url = "/lua/ADGetVals.lua?" + parm;
+          xmlHttp.open("GET", url, true);
+          xmlHttp.onreadystatechange = cb5;
+          xmlHttp.send(null);
+      }
+
+      function mOver(parm)
+      {
+          document.getElementById(parm).value = "";
+      }
+
+   </script>
+
+</head>
+
+
+<body bgcolor="#FFFDDD">
+
+    <br><br>
+
+    <a href="/ledsX.html"> Led Button Page </a>
+    <br>
+    <a href="/adget.html"> A/D GetVals Page </a>
+
+    <br><br>
+
+    <table border=0 cellspacing=0 cellpadding=1>
+
+      <tr> <td width=200> <a href="javascript:ledX_click('led0=on' )">Led0 On</a></td>
+           <td width=280> &nbsp;</td>
+           <td>           &nbsp;</td></tr>
+      <tr> <td> <a href="javascript:ledX_click('led0=off')">Led0 Off</a></td>
+           <td> <input type="textbox" size="40" id="led0box"/></td> <td>&nbsp;</td></tr>
+
+      <tr> <td>&nbsp;</td>
+           <td>&nbsp;</td><td>&nbsp;</td></tr>
+
+      <tr> <td> <a href="javascript:ledX_click('led1=on' )">Led1 On</a></td>
+           <td> &nbsp; </td><td>&nbsp;</td></tr>
+      <tr> <td> <a href="javascript:ledX_click('led1=off')">Led1 Off</a></td>
+           <td> <input type="textbox" size="40" id="led1box"/></td><td>&nbsp;</td></tr>
+
+      <tr> <td> &nbsp; </td>
+           <td> &nbsp; </td><td>&nbsp;</td></tr>
+
+      <tr> <td> <a href="javascript:ledX_click('led2=on' )">Led2 On</a></td>
+           <td> &nbsp; </td><td>&nbsp;</td></tr>
+      <tr> <td> <a href="javascript:ledX_click('led2=off')">Led2 Off</a></td>
+           <td> <input type="textbox" size="40" id="led2box"/></td><td>&nbsp;</td></tr>
+
+      <tr> <td> &nbsp; </td>
+           <td> &nbsp; </td><td>&nbsp;</td></tr>
+
+      <tr> <td> <a href="javascript:ledX_click('led3=on' )">Led3 On</a></td>
+           <td> &nbsp; </td><td>&nbsp;</td> </tr>
+      <tr> <td> <a href="javascript:ledX_click('led3=off')">Led3 Off</a></td>
+           <td> <input type="textbox" size="40" id="led3box"/></td><td>&nbsp;</td> </tr>
+
+      <tr> <td> &nbsp; </td>
+           <td> &nbsp; </td> <td>&nbsp;</td></tr>
+      <tr> <td> ------------------ </td>
+           <td> &nbsp; </td> <td>&nbsp;</td></tr>
+      <tr> <td> &nbsp; </td>
+           <td> &nbsp; </td> <td>&nbsp;</td></tr>
+
+      <tr> <td> <a href="javascript:dloop_click('zz=0')">Dloop</a></td>
+           <td> <input type="textbox" size="40" id="dloopbox"/></td> <td>&nbsp;</td></tr>
+
+      <tr> <td> &nbsp; </td>
+           <td> &nbsp; </td> <td>&nbsp;</td></tr>
+      <tr> <td> ------------------ </td>
+           <td> &nbsp; </td> <td>&nbsp;</td></tr>
+      <tr> <td> &nbsp; </td>
+           <td> &nbsp; </td> <td>&nbsp;</td></tr>
+
+      <tr> <td> <a href="javascript:doreset_click('zz=0')">Reset</a></td>
+           <td> <input type="textbox" size="40" id="doresetbox"/></td>
+           <td onmouseover="javascript:mOver('doresetbox')">x</td></tr>
+
+      <tr> <td> &nbsp; </td>
+           <td> &nbsp; </td> <td>&nbsp;</td></tr>
+      <tr> <td> ------------------ </td>
+           <td> &nbsp; </td> <td>&nbsp;</td></tr>
+      <tr> <td> &nbsp; </td>
+           <td> &nbsp; </td> <td>&nbsp;</td></tr>
+
+      <tr> <td> <a href="javascript:adconfig_click('zz=0')">ADconfig</a></td>
+           <td> <input type="textbox" size="40" id="adconfigbox"/></td>
+           <td onmouseover="javascript:mOver('adconfigbox')">x</td></tr>
+
+      <tr> <td> &nbsp; </td>
+           <td> &nbsp; </td> <td>&nbsp;</td></tr>
+      <tr> <td> ------------------ </td>
+           <td> &nbsp; </td> <td>&nbsp;</td></tr>
+      <tr> <td> &nbsp; </td>
+           <td> &nbsp; </td> <td>&nbsp;</td></tr>
+
+      <tr> <td> <a href="javascript:adgetvals1_click('chan=5')">AD Get Vals [5]</a></td>
+           <td> <input type="textbox" size="40" id="adgetvalsbox1"/></td>
+           <td onmouseover="javascript:mOver('adgetvalsbox1')">x</td></tr>
+
+      <tr> <td> <a href="javascript:adgetvals2_click('chan=15')">AD Get Vals [15]</a></td>
+           <td> <input type="textbox" size="40" id="adgetvalsbox2"/></td>
+           <td onmouseover="javascript:mOver('adgetvalsbox2')">x</td></tr>
+
+    </table>
+
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+<br>&nbsp;<br>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

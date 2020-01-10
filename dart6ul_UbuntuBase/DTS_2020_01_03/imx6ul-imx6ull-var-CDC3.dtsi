@@ -1,0 +1,116 @@
+/* Definitions for DART 6UL moudule used on
+ * custom Cool Data Controller 3 (CDC3)
+ * Ice Energy Holdings Inc. 2019-10-30 
+ */
+
+/* The following definitions need to be set to disabled
+ * in their associated dtsi file to allow these definition
+ * to take affect. 
+ */
+
+     
+/ {
+
+	keys-cdc3 {
+		status = "okay"; 
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_gpio_cdc3_keys>;
+
+		user1 {
+			gpios = <&gpio4 17 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_MENU>;
+			gpio-key,key-menu;
+		};
+
+		user2 {
+			gpios = <&gpio4 18 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_UP>;
+			gpio-key,key-up;
+		};
+
+		user3 {
+			gpios = <&gpio4 20 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_DOWN>;
+			gpio-key,key-down;
+		};
+
+		user4 {
+			gpios = <&gpio4 21 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_ENTER>;
+			gpio-key,key-enter;
+		};
+	};
+
+	leds {
+		status = "okay";
+		compatible = "gpio-leds";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_gpio_leds>;
+
+		d2_led {
+			gpios = <&gpio5 7 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "heartbeat";
+		};
+	};
+};
+
+&iomuxc {
+	pinctrl_gpio_cdc3_keys: gpio_cdc3_keysgrp {
+		fsl,pins = <
+			MX6UL_PAD_CSI_MCLK__GPIO4_IO17		0x0f000 /* MENU Button  */
+			MX6UL_PAD_CSI_PIXCLK__GPIO4_IO18	0x0f000 /* UP Button    */
+			MX6UL_PAD_CSI_HSYNC__GPIO4_IO20		0x0f000 /* DOWN Button  */
+			MX6UL_PAD_CSI_DATA00__GPIO4_IO21	0x0f000 /* ENTER Button */
+		>;
+	};
+
+	pinctrl_gpio_leds: gpio_ledsgrp {
+		fsl,pins = <
+			MX6ULL_PAD_SNVS_TAMPER7__GPIO5_IO07	0x1b0b0 /* HB LED      */
+		>;
+	};
+
+	pinctrl_uart4: uart4grp {
+		fsl,pins = <
+			MX6UL_PAD_LCD_CLK__UART4_DCE_TX		0x1b0b1
+			MX6UL_PAD_LCD_ENABLE__UART4_DCE_RX	0x1b0b1
+			MX6UL_PAD_LCD_VSYNC__UART4_DCE_RTS	0x1b0b1
+			MX6UL_PAD_LCD_HSYNC__UART4_DCE_CTS	0x1b0b1
+		>;
+	};
+
+	pinctrl_uart5: uart5grp {
+		fsl,pins = <
+			MX6UL_PAD_GPIO1_IO04__UART5_DCE_TX	0x1b0b1
+			MX6UL_PAD_GPIO1_IO05__UART5_DCE_RX	0x1b0b1
+			MX6UL_PAD_GPIO1_IO08__UART5_DCE_RTS	0x1b0b1
+			MX6UL_PAD_GPIO1_IO09__UART5_DCE_CTS	0x1b0b1
+		>;
+	};
+/*
+	pinctrl_pwm1: pwm1grp {
+		fsl,pins = <
+			MX6UL_PAD_LCD_DATA00__PWM1_OUT		0x110b0
+		>;
+	};
+
+*/
+};
+
+/* COMS to CTRL UART */
+&uart4 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart4>;
+	fsl,uart-has-rtscts;
+	status = "okay";
+};
+
+/* RS485 UART */
+&uart5 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart5>;
+	fsl,uart-has-rtscts;
+	status = "okay";
+};
+

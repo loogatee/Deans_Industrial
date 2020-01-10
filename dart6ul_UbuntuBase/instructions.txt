@@ -1,0 +1,72 @@
+
+reference:  http://variwiki.com/index.php?title=Debian_Build_Release
+
+
+1.   make the Variscite build directory
+
+     - cd /opt
+
+     - git clone https://github.com/varigit/debian-var.git -b debian_stretch_mx6ul_var03 var_mx6ul_dart_debian
+
+     - cd /opt/var_mx6ul_dart_debian
+
+     - ./make_var_mx6ul_dart_debian.sh -c deploy
+
+2.   make bootloader, kernel, modules
+
+
+     - sudo ./make_var_mx6ul_dart_debian.sh -c bootloader
+
+     - sudo ./make_var_mx6ul_dart_debian.sh -c kernel
+
+     - sudo ./make_var_mx6ul_dart_debian.sh -c modules
+
+
+3.   make the rootfs and copy it over
+
+     - cd ~/dart6ul_UbuntuBase
+
+     - ./make_rootfs
+
+     - sudo rsync -avD rootfs /opt/var_mx6ul_dart_debian
+
+4.  Pack the rootfs
+
+     - cd /opt/var_mx6ul_dart_debian
+
+     - sudo ./make_var_mx6ul_dart_debian.sh -c rtar
+
+     - sudo ./make_var_mx6ul_dart_debian.sh -c rubi
+
+5.  Create boot SD card
+
+    - sudo ./make_var_mx6ul_dart_debian.sh -c sdcard -d /dev/sdXX
+
+6.  Fix up the sdcard
+
+    - eject drive, then re-insert in order to re-mount
+
+    - cd ~/dart6ul_UbuntuBase
+
+    - rm /media/johnr/BOOT-VARSOM/*concerto*
+    - cp Custom_Files/Deans_dtb/* /media/johnr/BOOT-VARSOM
+
+    - sudo cp Custom_Files/Deans_dtb/* /media/johnr/rootfs/opt/images/Debian
+
+  <eject>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
