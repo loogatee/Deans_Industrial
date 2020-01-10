@@ -2,7 +2,7 @@
 # dart6ul_UbuntuBase
  &nbsp; &nbsp; &nbsp; &nbsp; Build Ubuntu Base from scratch for dart6ul
 
-### Follow Variscite instructions 1st
+1. ### Follow Variscite instructions 1st
 
 Goto: http://variwiki.com/index.php?title=Debian_Build_Release
 
@@ -12,27 +12,27 @@ Perform all the steps up to number 3.2.3: 'Build rootfs'.
 
     `sudo ./make_var_mx6ul_dart_debian.sh -c modules`
 
-### Execute the make_rootfs.sh shell script.
+2. ### Execute the make_rootfs.sh shell script.
 
 This will build rootfs locally.
 
-### Put a sdcard in your computer
+3. ### Put a sdcard in your computer
 
 I think a 4GB card will work.  I typically use 16.<br>
 The card will be overwritten.
 
-### Execute the make_sdcard.sh shell script.
+4. ### Execute the make_sdcard.sh shell script.
 
 This will put the entire Linux distro on the card, and make the card bootable.
 
-### Place sdcard into slot on cdc3 board.
+5. ### Place sdcard into slot on cdc3 board.
 
 And reboot
 
-### Login as root
+6. ### Login as root
 
-### Execute 1stboot_config.sh
+7. ### Execute 1stboot_config.sh
 
 reboot
 
-### Hit the webserver:  Get A/D values
+8. ### Hit the webserver:  Get A/D values
