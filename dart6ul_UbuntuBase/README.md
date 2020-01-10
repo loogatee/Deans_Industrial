@@ -4,7 +4,7 @@
 
 1. ### Follow Variscite instructions 1st
 
-<div style="text-indent: 800px;">
+<p style="margin-leftt:100px;">
 Goto: http://variwiki.com/index.php?title=Debian_Build_Release
 
 Perform all the steps up to number 3.2.3: 'Build rootfs'.
@@ -12,7 +12,7 @@ Perform all the steps up to number 3.2.3: 'Build rootfs'.
 **You do not build the rootfs**.   The last step from the list to execute is this:
 
     `sudo ./make_var_mx6ul_dart_debian.sh -c modules`
-</div>
+</p>
 
 2. ### Execute the make_rootfs.sh shell script.
 
