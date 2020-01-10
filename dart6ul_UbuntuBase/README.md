@@ -4,7 +4,7 @@
 
 1. ### Follow Variscite instructions 1st
 
-<div style="margin-left: 100em;">
+<div style="text-indent: 100em;">
 Goto: http://variwiki.com/index.php?title=Debian_Build_Release
 
 Perform all the steps up to number 3.2.3: 'Build rootfs'.
