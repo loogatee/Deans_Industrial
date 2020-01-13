@@ -166,10 +166,16 @@ static void init_gpios(void)
       gpioX.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init(GPIOE, &gpioX);
 
+    //#define SVALVE_ON_Pin        GPIO_Pin_6
+    //#define SVALVE_ON_GPIO_Port  GPIOA
+    //#define WPUMP_ON_Pin         GPIO_Pin_7
+    //#define WPUMP_ON_GPIO_Port   GPIOA
+    //#define FAN1_ON_Pin          GPIO_Pin_12
+    //#define FAN1_ON_GPIO_Port    GPIOA
     GPIO_StructInit(&gpioX);
-      gpioX.GPIO_Pin   = CTRL_P_RTS_Pin | FAN2_ON_Pin;                        // GPIOA: , Pin1 = CTRL_P_RTS,  Pin11 = D7 = FAN2_ON_Pin
-      gpioX.GPIO_Mode  = GPIO_Mode_OUT;
-      gpioX.GPIO_PuPd  = GPIO_PuPd_UP;
+      gpioX.GPIO_Pin   = CTRL_P_RTS_Pin | FAN2_ON_Pin | FAN1_ON_Pin | SVALVE_ON_Pin | WPUMP_ON_Pin;
+      gpioX.GPIO_Mode  = GPIO_Mode_OUT;                                     // GPIOA: , P1=CTRL_P_RTS,  Pin11=D7=FAN2,  Pin12=D6=FAN1
+      gpioX.GPIO_PuPd  = GPIO_PuPd_UP;                                      //                          Pin6=D4=SVALVE, Pin7=D5=WPUMP
       gpioX.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_Init(GPIOA, &gpioX);
 

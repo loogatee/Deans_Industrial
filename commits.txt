@@ -1,4 +1,10 @@
 
+dart6ul_UbuntuBase moved in. Instructions on how to build Linux distro for the dart.
+-------------------------------------------------
+    1/10/2020  1:30pm
+    eom
+
+
 cleanup on AtoDs.c, and found/fixed bug in AtoD_init.
 -------------------------------------------------
     1/5/2020  2:15pm

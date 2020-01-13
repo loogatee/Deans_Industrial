@@ -21,7 +21,7 @@
 #define VERSION_STR     "Deans Industrial  V1_"
 #define VERSION_MAJOR   1
 #define VERSION_MINOR   1
-#define VERSION_DATE    "1/3/2020 19:17\r\n"
+#define VERSION_DATE    "1/12/2020 20:53\r\n"
 
 
 

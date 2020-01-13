@@ -33,6 +33,7 @@
 #include "Host_Cmds.h"
 #include "PacketDrivers.h"
 #include "PacketSendThread.h"
+#include "Host_Cmds.h"
 
 #define Q_ELEMENTS    3
 #define Q_ITEMSIZE    sizeof( uint32_t )
@@ -57,10 +58,15 @@ static GLOBALS_PRT_t   Globals;
 
 
 
+static u32 get_value_cmd( u8 parm );
+
+extern AD_SignalDef_t CSVar[];           // for convenience.          Per Signal
+
 STATIC void PacketRecv_Thread(void const * argument)
 {
     Bool            ReturnTheBuffer;
-    u8             *Dptr;
+    u8             *Dptr,Z;
+    u32             tmp;
     GLOBALS_PRT_t  *G = &Globals;
 
     while(1)
@@ -89,11 +95,38 @@ STATIC void PacketRecv_Thread(void const * argument)
             PacketSend_pakt(HOSTCMD_DLOOP_OH,Dptr[LENi],G->DloopBuf,0); // Sends the newly populated buffer back to the host
             break;
 
+        case HOSTCMD_SETGPIOS:
+
+            Z = Dptr[SODi+1];
+            switch( Dptr[SODi] )
+            {
+              case pFAN2:     { if( !Z ) GPIO_ResetBits(GPIOA,   FAN2_ON_Pin); else GPIO_SetBits(GPIOA,   FAN2_ON_Pin); } break;
+              case pFAN1:     { if( !Z ) GPIO_ResetBits(GPIOA,   FAN1_ON_Pin); else GPIO_SetBits(GPIOA,   FAN1_ON_Pin); } break;
+              case pWPUMP:    { if( !Z ) GPIO_ResetBits(GPIOA,  WPUMP_ON_Pin); else GPIO_SetBits(GPIOA,  WPUMP_ON_Pin); } break;
+              case pSVALVE:   { if( !Z ) GPIO_ResetBits(GPIOA, SVALVE_ON_Pin); else GPIO_SetBits(GPIOA, SVALVE_ON_Pin); } break;
+            }
+
+            break;
+
         case HOSTCMD_GET_ALLAD:                                         // All 16 A/D's returned.  0 returned for non-configured Sensors
 
             AtoD_GetAllReadings( (u32 *)&Dptr[8] );                     //  Note the 8-byte alignment of the address.
             PacketSend_pakt( HOSTCMD_GET_ALLAD, 67, Dptr, (u32)Dptr );  //  (16*4) + 3 empty bytes: [5],[6],[7]
             ReturnTheBuffer = False;                                    //  Buffer will be returned in the Send driver
+            break;
+
+        case HOSTCMD_GET_VALUE:                                         // bout anything
+
+            tmp = get_value_cmd( Dptr[SODi] );                          // 256 possible variables can be retrieved
+            UD_Print8("CMD_GET_VALUE parm: ",  Dptr[SODi]);
+            memcpy(&Dptr[PAKTSODi], (void *)&tmp, 4);                   // copy retrieved value in the the packet
+            PacketSend_pakt( HOSTCMD_GET_VALUE, 4, Dptr, (u32)Dptr );   // 4 bytes is the total
+            ReturnTheBuffer = False;                                    //    ** Buffer will be returned in the Send driver
+            break;
+
+        case HOSTCMD_DORESET:
+            /* BING, BING.  Hit something. */
+            UD_Print8("DORESET pakt: ",  Dptr[SODi]);
             break;
 
         default: UD_Print8N("ERROR DEFAULT, cmd: ",  Dptr[CMDi]);       // todo: Log this condition
@@ -111,7 +144,9 @@ GLOBALLY_VISIBLE void PacketRecv_Qsend( u8 *bufptr )                    // All r
 
 
 
-
+//
+//  equivalent to an init function:  called once at startup
+//
 GLOBALLY_VISIBLE void PacketRecv_TaskCreate( void )
 {
     Globals.RQhand = xQueueCreateStatic( Q_ELEMENTS, Q_ITEMSIZE, Globals.StaticQBuffer, &Globals.StaticQueue);
@@ -121,8 +156,41 @@ GLOBALLY_VISIBLE void PacketRecv_TaskCreate( void )
 
 
 
+static u32 get_value_cmd( u8 parm )
+{
+    float  Fval;
+    u16    Rval;
+    u8     chan = 0;
 
+    switch( parm )
+    {
+      case hAD_AI1:  chan=0;    break;
+      case hAD_AI2:  chan=1;    break;
+      case hAD_AI3:  chan=2;    break;
+      case hAD_AI4:  chan=3;    break;
+      case hAD_AI5:  chan=4;    break;
+      case hAD_AI6:  chan=5;    break;
+      case hAD_AI7:  chan=6;    break;
+      case hAD_AI8:  chan=7;    break;
+      case hAD_AI9:  chan=8;    break;
+      case hAD_AI10: chan=9;    break;
+      case hAD_AI11: chan=10;   break;
+      case hAD_AI12: chan=11;   break;
+      case hAD_AI13: chan=12;   break;
+      case hAD_AI14: chan=13;   break;
+      case hAD_AI15: chan=14;   break;
+      case hAD_AI16: chan=15;   break;
+      case hI0CBt:   return (u32)(CSVar[CAB_T].Value*1000.0);
+    }
 
+    if( parm >= hAD_AI1 && parm <= hAD_AI16 )
+    {
+        AtoD_Get_Reading( chan, &Rval, &Fval );
+        return (u32)(Fval*1000.0);
+    }
+
+    return 0;
+}
 
 
 

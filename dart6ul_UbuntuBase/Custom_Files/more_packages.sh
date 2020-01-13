@@ -15,6 +15,7 @@ apt-get -y  install git
 apt-get -y  install curl
 apt-get -y  install lrzsz
 apt-get -y  install minicom
+apt-get -y  install sshfs
 
 #
 #  wifi
