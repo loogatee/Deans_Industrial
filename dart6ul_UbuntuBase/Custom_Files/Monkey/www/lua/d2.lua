@@ -21,17 +21,13 @@ HTML__err = [[
 
 function dloop(env, con, Parms)
     local SS,S1,ctx,skt
-    local t = {}
 
-    t[#t+1] = "\001"
-    t[#t+1] = "\000"
-    t[#t+1] = "\004"
-    t[#t+1] = "\001"
+    local DLOOP_CMD = "{ 'Dloop', 0, 1 }"
 
     ctx = zmq.context()
     skt = ctx:socket{ zmq.REQ, connect = "ipc:///tmp/zmqfeeds/CmdChannel" }
 
-    skt:send( table.concat(t) )
+    skt:send( DLOOP_CMD )
 
     SS = skt:recv()
     if SS == nil then
@@ -49,21 +45,21 @@ function dloop(env, con, Parms)
 end
 
 
-
+--
+--  Its a reset, nothing is coming back
+--
 function doreset(env, con, Parms)
-    local SS,S1,ctx,skt
+    local ctx,skt
     local t = {}
 
-    t[#t+1] = "\003"
-    t[#t+1] = "\000"
-    t[#t+1] = "\000"
+    t[#t+1] = "\001"         -- length bytes = 1
+    t[#t+1] = "\027"         -- cmd          = 27
+    t[#t+1] = "\002"         -- a marker
 
     ctx = zmq.context()
-    skt = ctx:socket{ zmq.REQ, connect = "ipc:///tmp/zmqfeeds/CmdChannel" }
+    skt = ctx:socket{ zmq.PUSH, connect = "ipc:///tmp/zmqfeeds/1" }
 
     skt:send( table.concat(t) )
-
-    SS = skt:recv()
 
     skt:close()
     ctx:destroy()
@@ -75,51 +71,45 @@ function setled(env, con, Parms)
     local got_one = 1
     local t={}
 
-
-    t[#t+1] = "\002"
-    t[#t+1] = "\000"
-    s2      = "\000"
-    W       = "off"
+    s2 = "\000"
+    W  = "off"
 
 
     if Parms.led0 ~= nil then
-        theled  = "led0"
-        s1      = "\000"
+        theled  = "fan2"
+        s1      = "\001"
         if Parms.led0 == "on" then W="on"; s2 = "\001" end
 
     elseif Parms.led1 ~= nil then
-        theled  = "led1"
-        s1      = "\001"
+        theled  = "fan1"
+        s1      = "\002"
         if Parms.led1 == "on" then W="on"; s2 = "\001" end
 
     elseif Parms.led2 ~= nil then
-        theled  = "led2"
-        s1      = "\002"
+        theled  = "wpump"
+        s1      = "\003"
         if Parms.led2 == "on" then W="on"; s2 = "\001" end
 
     elseif Parms.led3 ~= nil then
-        theled  = "led3"
-        s1      = "\003"
+        theled  = "svalve"
+        s1      = "\004"
         if Parms.led3 == "on" then W="on"; s2 = "\001" end
     else
         got_one = 0
     end
 
-    t[#t+1] = s1
-    t[#t+1] = s2
+    t[#t+1] = "\002"         -- length bytes = 2
+    t[#t+1] = "\026"         -- cmd          = 26
+    t[#t+1] = s1             -- Led number
+    t[#t+1] = s2             -- 0=OFF, Non-Zero=ON
 
     if got_one == 1 then
 
         local ctx = zmq.context()
-        local skt = ctx:socket{ zmq.REQ, linger = 0, rcvtimeo = 1000, connect = "ipc:///tmp/zmqfeeds/CmdChannel" }
+        local skt = ctx:socket{ zmq.PUSH, connect = "ipc:///tmp/zmqfeeds/1" }
 
         skt:send(table.concat(t))
-        SS = skt:recv()
-        if SS == nil then
-            S1 = '{ "setled": "skt:recv() returned nil" }'
-        else
-            S1 = '{ "' .. theled .. '": "' .. W .. '" }'
-        end
+        S1 = '{ "' .. theled .. '": "' .. W .. '" }'
 
         skt:close()
         ctx:destroy()

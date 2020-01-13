@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+   <meta charset="utf-8"/>
    <title> Simple Index Page </title>
    <style>
       a:link    { text-decoration: none; }
@@ -21,17 +22,17 @@
               console.log(response);
               xjs = JSON.parse(response);
 
-              if( xjs.led0 != null )
+              if( xjs.fan2 != null )
               {
                   //console.log("try xjs.led0: " + xjs.led0);
-                  document.getElementById("led0box").value = "led0: " + xjs.led0;
+                  document.getElementById("led0box").value = "fan2: " + xjs.fan2;
               }
-              else if( xjs.led1 != null )
-                  document.getElementById("led1box").value = "led1: " + xjs.led1;
-              else if( xjs.led2 != null )
-                  document.getElementById("led2box").value = "led2: " + xjs.led2;
-              else if( xjs.led3 != null )
-                  document.getElementById("led3box").value = "led3: " + xjs.led3;
+              else if( xjs.fan1 != null )
+                  document.getElementById("led1box").value = "fan1: " + xjs.fan1;
+              else if( xjs.wpump != null )
+                  document.getElementById("led2box").value = "wpump: " + xjs.wpump;
+              else if( xjs.svalve != null )
+                  document.getElementById("led3box").value = "svalve: " + xjs.svalve;
               else if( xjs.dloop != null )
                   document.getElementById("dloopbox").value = "dloop: " + xjs.dloop;
               else if( xjs.setled != null )
@@ -54,15 +55,15 @@
       function cb4()
       {
           if (xmlHttp.readyState == 2)
-              document.getElementById("adgetvalsbox1").value = "ADGetVals sent";
+              document.getElementById("getcmdvalbox1").value = "get_cmd_value sent";
           else if (xmlHttp.readyState == 4)
           {
               var response = xmlHttp.responseText;
               console.log(response);
               xjs = JSON.parse(response);
 
-              if( xjs.ADGetVals != null )
-                  document.getElementById("adgetvalsbox1").value = xjs.ADGetVals;
+              if( xjs.cmd_get_value != null )
+                  document.getElementById("getcmdvalbox1").value = xjs.cmd_get_value;
           }
 
       }
@@ -70,17 +71,31 @@
       function cb5()
       {
           if (xmlHttp.readyState == 2)
-              document.getElementById("adgetvalsbox2").value = "ADGetVals sent";
+              document.getElementById("getcmdvalbox2").value = "get_cmd_value sent";
           else if (xmlHttp.readyState == 4)
           {
               var response = xmlHttp.responseText;
               console.log(response);
               xjs = JSON.parse(response);
 
-              if( xjs.ADGetVals != null )
-                  document.getElementById("adgetvalsbox2").value = xjs.ADGetVals;
+              if( xjs.cmd_get_value != null )
+                  document.getElementById("getcmdvalbox2").value = xjs.cmd_get_value;
           }
+      }
 
+      function cb6()
+      {
+          if (xmlHttp.readyState == 2)
+              document.getElementById("getcmdvalbox3").value = "get_cmd_value sent";
+          else if (xmlHttp.readyState == 4)
+          {
+              var response = xmlHttp.responseText;
+              console.log(response);
+              xjs = JSON.parse(response);
+
+              if( xjs.cmd_get_value != null )
+                  document.getElementById("getcmdvalbox3").value = xjs.cmd_get_value;
+          }
       }
 
       function ledX_click(parm)
@@ -126,21 +141,30 @@
           xmlHttp.send(null);
       }
 
-      function adgetvals1_click(parm)
+      function cmdgetval1_click(parm)
       {
-          document.getElementById("adgetvalsbox1").value = ""
-          var url = "/lua/ADGetVals.lua?" + parm;
+          document.getElementById("getcmdvalbox1").value = ""
+          var url = "/lua/cmd_get_value.lua?" + parm;
           xmlHttp.open("GET", url, true);
           xmlHttp.onreadystatechange = cb4;
           xmlHttp.send(null);
       }
 
-      function adgetvals2_click(parm)
+      function cmdgetval2_click(parm)
       {
-          document.getElementById("adgetvalsbox2").value = ""
-          var url = "/lua/ADGetVals.lua?" + parm;
+          document.getElementById("getcmdvalbox2").value = ""
+          var url = "/lua/cmd_get_value.lua?" + parm;
           xmlHttp.open("GET", url, true);
           xmlHttp.onreadystatechange = cb5;
+          xmlHttp.send(null);
+      }
+
+      function cmdgetval3_click(parm)
+      {
+          document.getElementById("getcmdvalbox3").value = ""
+          var url = "/lua/cmd_get_value.lua?" + parm;
+          xmlHttp.open("GET", url, true);
+          xmlHttp.onreadystatechange = cb6;
           xmlHttp.send(null);
       }
 
@@ -158,7 +182,7 @@
 
     <br><br>
 
-    <a href="/ledsX.html"> Led Button Page </a>
+    <a href="/ledsX.html"> GPIO Control Page </a>
     <br>
     <a href="/adget.html"> A/D GetVals Page </a>
 
@@ -166,34 +190,34 @@
 
     <table border=0 cellspacing=0 cellpadding=1>
 
-      <tr> <td width=200> <a href="javascript:ledX_click('led0=on' )">Led0 On</a></td>
+      <tr> <td width=200> <a href="javascript:ledX_click('led0=on' )">FAN2 On</a></td>
            <td width=280> &nbsp;</td>
            <td>           &nbsp;</td></tr>
-      <tr> <td> <a href="javascript:ledX_click('led0=off')">Led0 Off</a></td>
+      <tr> <td> <a href="javascript:ledX_click('led0=off')">FAN2 Off</a></td>
            <td> <input type="textbox" size="40" id="led0box"/></td> <td>&nbsp;</td></tr>
 
       <tr> <td>&nbsp;</td>
            <td>&nbsp;</td><td>&nbsp;</td></tr>
 
-      <tr> <td> <a href="javascript:ledX_click('led1=on' )">Led1 On</a></td>
+      <tr> <td> <a href="javascript:ledX_click('led1=on' )">FAN1 On</a></td>
            <td> &nbsp; </td><td>&nbsp;</td></tr>
-      <tr> <td> <a href="javascript:ledX_click('led1=off')">Led1 Off</a></td>
+      <tr> <td> <a href="javascript:ledX_click('led1=off')">FAN1 Off</a></td>
            <td> <input type="textbox" size="40" id="led1box"/></td><td>&nbsp;</td></tr>
 
       <tr> <td> &nbsp; </td>
            <td> &nbsp; </td><td>&nbsp;</td></tr>
 
-      <tr> <td> <a href="javascript:ledX_click('led2=on' )">Led2 On</a></td>
+      <tr> <td> <a href="javascript:ledX_click('led2=on' )">WPump On</a></td>
            <td> &nbsp; </td><td>&nbsp;</td></tr>
-      <tr> <td> <a href="javascript:ledX_click('led2=off')">Led2 Off</a></td>
+      <tr> <td> <a href="javascript:ledX_click('led2=off')">WPump Off</a></td>
            <td> <input type="textbox" size="40" id="led2box"/></td><td>&nbsp;</td></tr>
 
       <tr> <td> &nbsp; </td>
            <td> &nbsp; </td><td>&nbsp;</td></tr>
 
-      <tr> <td> <a href="javascript:ledX_click('led3=on' )">Led3 On</a></td>
+      <tr> <td> <a href="javascript:ledX_click('led3=on' )">SValve On</a></td>
            <td> &nbsp; </td><td>&nbsp;</td> </tr>
-      <tr> <td> <a href="javascript:ledX_click('led3=off')">Led3 Off</a></td>
+      <tr> <td> <a href="javascript:ledX_click('led3=off')">SValve Off</a></td>
            <td> <input type="textbox" size="40" id="led3box"/></td><td>&nbsp;</td> </tr>
 
       <tr> <td> &nbsp; </td>
@@ -235,13 +259,23 @@
       <tr> <td> &nbsp; </td>
            <td> &nbsp; </td> <td>&nbsp;</td></tr>
 
-      <tr> <td> <a href="javascript:adgetvals1_click('chan=5')">AD Get Vals [5]</a></td>
-           <td> <input type="textbox" size="40" id="adgetvalsbox1"/></td>
-           <td onmouseover="javascript:mOver('adgetvalsbox1')">x</td></tr>
+      <tr> <td> <a href="javascript:cmdgetval1_click('parm=11')">cmd get val [AI12]</a></td>
+           <td> <input type="textbox" size="40" id="getcmdvalbox1"/></td>
+           <td onmouseover="javascript:mOver('getcmdvalbox1')">&nbsp;</td></tr>
 
-      <tr> <td> <a href="javascript:adgetvals2_click('chan=15')">AD Get Vals [15]</a></td>
-           <td> <input type="textbox" size="40" id="adgetvalsbox2"/></td>
-           <td onmouseover="javascript:mOver('adgetvalsbox2')">x</td></tr>
+      <!-- 
+                 AI1  =  0
+                 AI2  =  1
+                 AI10 =  9
+      -->
+
+      <tr> <td> <a href="javascript:cmdgetval2_click('parm=14')">cmd get val [AI15]</a></td>
+           <td> <input type="textbox" size="40" id="getcmdvalbox2"/></td>
+           <td onmouseover="javascript:mOver('getcmdvalbox2')">&nbsp;</td></tr>
+
+      <tr> <td> <a href="javascript:cmdgetval3_click('parm=16')">cmd get val [I0.CBt]</a></td>
+           <td> <input type="textbox" size="40" id="getcmdvalbox3"/></td>
+           <td onmouseover="javascript:mOver('getcmdvalbox3')">&nbsp;</td></tr>
 
     </table>
 

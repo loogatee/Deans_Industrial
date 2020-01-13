@@ -1,4 +1,15 @@
 
+
+Minor fixes everywhere to get the webpages to all work
+-------------------------------------------------
+    1/13/2020  noon
+
+    cmd_get_value added:  gets a single value.  returns as 32bit.
+
+    Tightened everything up.
+
+
+
 cleanup on AtoDs.c, and found/fixed bug in AtoD_init.
 -------------------------------------------------
     1/5/2020  2:15pm
@@ -11,7 +22,6 @@ PacketCentral renamed to Canned_Packets.  Get A/D values working
 
     And also tightened up the code around input parameters.
     That the Lua i/f code in packet_recv.
-
 
 
 PacketCentral is back in, and with a modified API
