@@ -266,6 +266,7 @@ static void ProcessPacket( u8 thetag )
 
     switch( G->dbuf[0] )
     {
+        case  CDCAPI_CMDGETVAL:
         case  CDCAPI_ADGETALL:
         case  CDCAPI_DLOOP_FHOST: rc = zmq_send( G->CdcResponse, G->dbuf, len, 0 ); break;
 
@@ -299,6 +300,9 @@ static void Init_serial_recv_ZMQs( void )
     rc             = zmq_bind   ( G->CdcResponse, ZMQPORT_CDCRESPONSE   );    assert(rc == 0);
 
     strcpy(tmpbuf, ZMQPORT_BACKCHANNEL_1);
+    chmod(&tmpbuf[6], 0777);
+
+    strcpy(tmpbuf, ZMQPORT_CDCRESPONSE);
     chmod(&tmpbuf[6], 0777);
 }
 

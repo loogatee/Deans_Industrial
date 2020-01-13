@@ -18,18 +18,7 @@
  */
 
 
-//    CDCCMD:    commands between Host App and PacketCentral
-//
 //    CDCAPI:    cmd byte in the packet going over the I/O channel
-
-
-#define   CDCCMD_DLOOP         0x0001
-#define   CDCCMD_SETLED        0x0002
-#define   CDCCMD_RESETDEV      0x0003
-#define   CDCCMD_ADGETVALS     0x0004
-#define   CDCCMD_ADGETALLAVGS  0x0005
-
-
 
 
 //
@@ -41,7 +30,9 @@
 
 
 // originates on CDC, NO response
-#define   CDCAPI_BLASTAWAY       0x66
+#define   CDCAPI_BLASTAWAY       102
+
+
 
 
 //
@@ -50,7 +41,8 @@
 #define   CDCAPI_DLOOP_FHOST     25
 #define   CDCAPI_ADGETVALS       29
 #define   CDCAPI_ADGETALL        30
-#define   CDCAPI_IMUP            0x67
+#define   CDCAPI_CMDGETVAL       31
+#define   CDCAPI_IMUP            103
 
 
 //
@@ -59,15 +51,28 @@
 #define   CDCAPI_SETLED          26
 #define   CDCAPI_RESETDEVICE     27
 
-
-
-
-
-
 #define   CDCAPI_JRTEST          199
 
 
 
+/*----------------------------------------------------------------
+
+
+#define   CDCAPI_DLOOP           22
+#define   CDCAPI_DLOOP2          24
+#define   CDCAPI_DLOOP_FHOST     25
+#define   CDCAPI_SETLED          26
+#define   CDCAPI_RESETDEVICE     27
+#define   CDCAPI_ANCONFIG        28
+#define   CDCAPI_ADGETVALS       29
+#define   CDCAPI_ADGETALL        30
+#define   CDCAPI_CMDGETVAL       31
+#define   CDCAPI_BLASTAWAY       102
+#define   CDCAPI_IMUP            103
+#define   CDCAPI_JRTEST          199
+
+
+----------------------------------------------------------------*/
 
 
 #endif

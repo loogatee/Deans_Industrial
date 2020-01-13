@@ -1,4 +1,14 @@
 
+
+Minor fixes everywhere to get the webpages to all work
+-------------------------------------------------
+    1/13/2020  noon
+
+    cmd_get_value added:  gets a single value.  returns as 32bit.
+
+    Tightened everything up.
+
+
 dart6ul_UbuntuBase moved in. Instructions on how to build Linux distro for the dart.
 -------------------------------------------------
     1/10/2020  1:30pm
@@ -17,7 +27,6 @@ PacketCentral renamed to Canned_Packets.  Get A/D values working
 
     And also tightened up the code around input parameters.
     That the Lua i/f code in packet_recv.
-
 
 
 PacketCentral is back in, and with a modified API

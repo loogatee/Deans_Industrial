@@ -5,7 +5,7 @@ PREFIX   =  /usr
 GCC      = gcc
 GCCARM   = arm-linux-gnueabihf-gcc
 
-progs    = cdc3 healthcheck
+progs    = cdc3
 OBJS     = main.o serial_recv.o serial_send.o packet_recv.o Canned_Packets.o
 
 all : $(progs)
