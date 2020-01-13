@@ -1,15 +1,18 @@
 
-hostif
-================
+---
 
-I have no idea
+# cdc3 Linux Host App
 
+Communicates with the *Controls Processor*.
 
-Installation:
--------------------
+ - Packet-based RS-232 driver on the back-end
+ - Message Queue (ZMQ) on the front-end
+ - Has an endpoint for packets originating on *Controls*
 
-    cdc3              /usr/local/bin
-    lutils.lua        /usr/local/bin
-    ConfigData.lua    /usr/share/monkey/cdcX
+The physical device for comms on the *Linux side* is /dev/ttymxc1
 
+The physical device for comms on the *Controls side* is USART2
 
+Baud rate is 9600.
+
+---
