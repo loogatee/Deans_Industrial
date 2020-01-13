@@ -5,11 +5,11 @@ set -x
 #    - can remove some ttyX conf's in /etc.   Remove them all.
 #
 
-HOSTNAME="darts"
+HOSTNAME="dartsy"
 
 
-#UBUNTU_NAME="ubuntu-base-14.04.5-base-armhf.tar.gz"
-UBUNTU_NAME="ubuntu-base-16.04.4-base-armhf.tar.gz"
+#UBUNTU_NAME="ubuntu-base-16.04.4-base-armhf.tar.gz"
+UBUNTU_NAME="ubuntu-base-16.04.6-base-armhf.tar.gz"
 
 
 sudo rm -rf rootfs
@@ -24,8 +24,7 @@ then
     cp /tmp/$UBUNTU_NAME .
     TMP1=0
 else
-#   wget http://cdimage.ubuntu.com/ubuntu-base/releases/14.04.5/release/$UBUNTU_NAME   fix
-    cp /home/johnr/Downloads/ubuntu-base-16.04.4-base-armhf.tar.gz
+    wget http://cdimage.ubuntu.com/ubuntu-base/releases/16.04.6/release/$UBUNTU_NAME
     TMP1=1
 fi
 
