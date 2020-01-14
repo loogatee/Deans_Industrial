@@ -105,6 +105,21 @@ static void do_backchannel_response( void )
         sprintf(S2buf, "%s\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]", S1buf,LS[8],LS[9],LS[10],LS[11],LS[12],LS[13],LS[14],LS[15]);
         zmq_send( G->BackChan3, S2buf, strlen(S2buf), 0 );
     }
+    else if( !strncmp(S1buf,"ADGetNamesEnbl",10) )                  // Names of all 16 A/D channels
+    {
+        lua_getglobal(G->LS1,"lua_Get_AD_NamesEnbl");               // This is the name of the Lua function
+        lua_pcall(G->LS1,0,1,0);                                    // executes the Lua function, 1 return arg on stack
+        lua_pushnil(G->LS1);                                        // precursor needed for reading stack values
+
+        for(i=0; i < 16; ++i)                                       // iterate through them all
+        {
+            getLSstackval(LS[i]);                                   // get the name: storage pointer passed in as parm
+        }
+
+        sprintf(S1buf,  "[\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",", LS[0],LS[1],LS[2],LS[3], LS[4], LS[5], LS[6], LS[7]);
+        sprintf(S2buf, "%s\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]", S1buf,LS[8],LS[9],LS[10],LS[11],LS[12],LS[13],LS[14],LS[15]);
+        zmq_send( G->BackChan3, S2buf, strlen(S2buf), 0 );
+    }
     else if( !strncmp(S1buf,"InParms",7) )                          // 0..7      Field_0
     {
         memcpy((void *)&XX, &S1buf[8], 4);                          // 8..11     Field_1:  Pointer to PARMS_t struct

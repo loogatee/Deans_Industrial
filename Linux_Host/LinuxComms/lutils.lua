@@ -98,6 +98,24 @@ function lua_Get_AD_Names()
     return T
 end
 
+function lua_Get_AD_NamesEnbl()
+    local T = {}
+
+    dofile(THE_FILENAME)
+
+    for k,W in pairs({ConfigData.ANALOG_TO_DIGITAL_INPUTS_1,ConfigData.ANALOG_TO_DIGITAL_INPUTS_2}) do
+        for i,V in ipairs(W) do
+            if V.Enbl == "yes" then
+                T[#T+1] = '+' .. V.Name
+            else
+                T[#T+1] = V.Name
+            end
+        end
+    end
+
+    return T
+end
+
 --
 --    Z={ 'dloop', 2, 3 }
 --

@@ -25,7 +25,10 @@ function S2()
     local skt1 = ctx1:socket{ zmq.PUSH, connect = "ipc:///tmp/zmqfeeds/1" }
 
     
-    skt1:send( "\002\026\004\000" )
+    skt1:send( "\002\026\004\000" )   -- len=2 (does not include len & cmd)
+                                      -- cmd=26    SET_LED
+                                      -- byte1=4   Solenoid Valve
+                                      -- byte2=0   Off
 
     skt1:close()
     ctx1:destroy()
