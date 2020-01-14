@@ -11,7 +11,7 @@ function main(env, con)
     local ctx = zmq.context()
     local skt = ctx:socket{ zmq.REQ, linger=0, rcvtimeo=1500, connect = "ipc:///tmp/zmqfeeds/backchannelpaktrecv" }
 
-    skt:send( "ADGetNames" )
+    skt:send( "ADGetNamesEnbl" )
 
     SS = skt:recv()
     if SS == nil then

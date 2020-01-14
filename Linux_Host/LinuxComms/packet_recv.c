@@ -90,9 +90,9 @@ static void do_backchannel_response( void )
         sprintf(S1buf,"ok,%d,%d",G->TotBytes,G->TotPacks);
         zmq_send( G->BackChan3, S1buf, strlen(S1buf), 0 );
     }
-    else if( !strncmp(S1buf,"ADGetNames",10) )                      // Names of all 16 A/D channels
+    else if( !strncmp(S1buf,"ADGetNamesEnbl",14) )                  // Names of all 16 A/D channels
     {
-        lua_getglobal(G->LS1,"lua_Get_AD_Names");                   // This is the name of the Lua function
+        lua_getglobal(G->LS1,"lua_Get_AD_NamesEnbl");               // This is the name of the Lua function
         lua_pcall(G->LS1,0,1,0);                                    // executes the Lua function, 1 return arg on stack
         lua_pushnil(G->LS1);                                        // precursor needed for reading stack values
 
@@ -105,9 +105,9 @@ static void do_backchannel_response( void )
         sprintf(S2buf, "%s\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"]", S1buf,LS[8],LS[9],LS[10],LS[11],LS[12],LS[13],LS[14],LS[15]);
         zmq_send( G->BackChan3, S2buf, strlen(S2buf), 0 );
     }
-    else if( !strncmp(S1buf,"ADGetNamesEnbl",10) )                  // Names of all 16 A/D channels
+    else if( !strncmp(S1buf,"ADGetNames",10) )                      // Names of all 16 A/D channels
     {
-        lua_getglobal(G->LS1,"lua_Get_AD_NamesEnbl");               // This is the name of the Lua function
+        lua_getglobal(G->LS1,"lua_Get_AD_Names");                   // This is the name of the Lua function
         lua_pcall(G->LS1,0,1,0);                                    // executes the Lua function, 1 return arg on stack
         lua_pushnil(G->LS1);                                        // precursor needed for reading stack values
 
