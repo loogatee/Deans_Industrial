@@ -112,8 +112,6 @@ GLOBALLY_VISIBLE void vApplicationIdleHook( void )
     //    Globals.Ntime = GetSysTick();                       //     re-init the counter
     //    dbgShowADchan();
     //}
-
-    GPIO_SetBits(GPIOE, DO1_Pin);
 }
 
 //

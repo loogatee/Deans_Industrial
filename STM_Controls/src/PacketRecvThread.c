@@ -180,12 +180,26 @@ static u32 get_value_cmd( u8 parm )
       case hAD_AI14: chan=13;   break;
       case hAD_AI15: chan=14;   break;
       case hAD_AI16: chan=15;   break;
-      case hI0CBt:   return (u32)(CSVar[CAB_T].Value*1000.0);
+
+      case hI0CBt:   Fval = CSVar[CAB_T].Value;       break;
+      case hI0SYp:   Fval = CSVar[SYS_P].Value;       break;
+      case hI0CSp:   Fval = CSVar[SUCT_P].Value;      break;
+      case hI0CSt:   Fval = CSVar[SUCT_T].Value;      break;
+      case hI0WSt:   Fval = CSVar[WETSUCT_T].Value;   break;
+      case hI0CLt:   Fval = CSVar[CONDLIQ_T].Value;   break;
+      case hI0TWt:   Fval = CSVar[WATER_T].Value;     break;
+      case hI0SYw:   Fval = CSVar[SYS_POW].Value;     break;
+      case hI0CPw:   Fval = CSVar[COM_POW].Value;     break;
     }
 
     if( parm >= hAD_AI1 && parm <= hAD_AI16 )
     {
         AtoD_Get_Reading( chan, &Rval, &Fval );
+        return (u32)(Fval*1000.0);
+    }
+
+    if( parm >= hI0CBt && parm <= hI0CPw )
+    {
         return (u32)(Fval*1000.0);
     }
 

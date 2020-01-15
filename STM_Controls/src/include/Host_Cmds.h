@@ -51,8 +51,15 @@
 #define hAD_AI14   13
 #define hAD_AI15   14
 #define hAD_AI16   15
-#define hI0CBt     16
-
+#define hI0CBt     16     // #define  CAB_T_N        "I0.CBt"
+#define hI0SYp     17
+#define hI0CSp     18
+#define hI0CSt     19
+#define hI0WSt     20
+#define hI0CLt     21
+#define hI0TWt     22
+#define hI0SYw     23
+#define hI0CPw     24
 
 
 
